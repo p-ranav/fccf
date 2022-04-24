@@ -2,10 +2,10 @@ CXX := g++
 LLVMCOMPONENTS := all
 RTTIFLAG := -fno-rtti
 LLVMCONFIG := llvm-config
-CXXFLAGS := -std=c++17 -I. -O3 $(shell $(LLVMCONFIG) --cxxflags) $(RTTIFLAG)
+CXXFLAGS := -I. -O3 $(shell $(LLVMCONFIG) --cxxflags) $(RTTIFLAG) -std=c++17
 LLVMLDFLAGS := $(shell $(LLVMCONFIG) --ldflags --libs $(LLVMCOMPONENTS))
-SOURCES = main.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
+SOURCES = main.cpp sse2_strstr.cpp
+OBJECTS = main.o
 EXES = $(OBJECTS:.o=)
 CLANGLIBS = \
 	-lclang\
