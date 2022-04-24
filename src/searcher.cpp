@@ -177,9 +177,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       // Filename
                       if (m_is_stdout) {
                         fmt::format_to(std::back_inserter(out),
-                                       "// \033[1;31m{}\033[0m ", filename);
+                                       "\n// \033[1;31m{}\033[0m ", filename);
                       } else {
-                        fmt::format_to(std::back_inserter(out), "// {} ",
+                        fmt::format_to(std::back_inserter(out), "\n// {} ",
                                        filename);
                       }
 
