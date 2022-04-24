@@ -99,7 +99,18 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
-  program.parse_args(argc, argv);
+  program.add_argument("-C")
+      .help("Search for any class or class template or struct")
+      .default_value(false)
+      .implicit_value(true);
+
+  try {
+    program.parse_args(argc, argv);
+  } catch (const std::runtime_error& err) {
+    std::cerr << err.what() << std::endl;
+    std::cerr << program;
+    std::exit(1);
+  }
 
   auto query = program.get<std::string>("query");
   auto path = program.get<std::string>("path");
@@ -116,6 +127,7 @@ int main(int argc, char *argv[]) {
   auto search_for_class = program.get<bool>("--class");
   auto search_for_class_template = program.get<bool>("--class-template");
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
+  auto search_for_any_class_or_struct = program.get<bool>("-C");
   auto search_for_typedef = program.get<bool>("--typedef");
   auto verbose = program.get<bool>("--verbose");
 
@@ -161,7 +173,7 @@ int main(int argc, char *argv[]) {
   searcher.m_clang_options = clang_options;
   searcher.m_exact_match = exact_match;
   searcher.m_search_for_enum = no_filter || search_for_enum;
-  searcher.m_search_for_struct = no_filter || search_for_struct;
+  searcher.m_search_for_struct = no_filter || search_for_any_class_or_struct || search_for_struct;
   searcher.m_search_for_union = no_filter || search_for_union;
   searcher.m_search_for_member_function =
       no_filter || search_for_any_function || search_for_member_function;
@@ -169,8 +181,8 @@ int main(int argc, char *argv[]) {
       no_filter || search_for_any_function || search_for_function;
   searcher.m_search_for_function_template =
       no_filter || search_for_any_function || search_for_function_template;
-  searcher.m_search_for_class = no_filter || search_for_class;
-  searcher.m_search_for_class_template = no_filter || search_for_class_template;
+  searcher.m_search_for_class = no_filter || search_for_any_class_or_struct || search_for_class;
+  searcher.m_search_for_class_template = no_filter || search_for_any_class_or_struct || search_for_class_template;
   searcher.m_search_for_class_constructor =
       no_filter || search_for_class_constructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;

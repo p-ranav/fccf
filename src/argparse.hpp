@@ -147,9 +147,8 @@ constexpr bool standard_integer =
     standard_signed_integer<T> || standard_unsigned_integer<T>;
 
 template <class F, class Tuple, class Extra, std::size_t... I>
-constexpr decltype(auto)
-apply_plus_one_impl(F &&f, Tuple &&t, Extra &&x,
-                    std::index_sequence<I...> /*unused*/) {
+constexpr decltype(auto) apply_plus_one_impl(F &&f, Tuple &&t, Extra &&x,
+                                             std::index_sequence<I...> /*unused*/) {
   return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...,
                      std::forward<Extra>(x));
 }
@@ -204,16 +203,13 @@ inline auto do_from_chars(std::string_view s) -> T {
     if (ptr == last) {
       return x;
     }
-    std::cerr << "pattern does not match to the end\n";
-    std::abort();
+    throw std::invalid_argument{"pattern does not match to the end"};
   }
   if (ec == std::errc::invalid_argument) {
-    std::cerr << "pattern not found\n";
-    std::abort();
+    throw std::invalid_argument{"pattern not found"};
   }
   if (ec == std::errc::result_out_of_range) {
-    std::cerr << "not representable\n";
-    std::abort();
+    throw std::range_error{"not representable"};
   }
   return x; // unreachable
 }
@@ -229,8 +225,7 @@ template <class T> struct parse_number<T, radix_16> {
     if (auto [ok, rest] = consume_hex_prefix(s); ok) {
       return do_from_chars<T, radix_16>(rest);
     }
-    std::cerr << "pattern not found\n";
-    std::abort();
+    throw std::invalid_argument{"pattern not found"};
   }
 };
 
@@ -258,8 +253,7 @@ template <> constexpr auto generic_strtod<long double> = strtold;
 
 template <class T> inline auto do_strtod(std::string const &s) -> T {
   if (isspace(static_cast<unsigned char>(s[0])) || s[0] == '+') {
-    std::cerr << "pattern not found\n";
-    std::abort();
+    throw std::invalid_argument{"pattern not found"};
   }
 
   auto [first, last] = pointer_range(s);
@@ -271,12 +265,10 @@ template <class T> inline auto do_strtod(std::string const &s) -> T {
     if (ptr == last) {
       return x;
     }
-    std::cerr << "pattern does not match to the end\n";
-    std::abort();
+    throw std::invalid_argument{"pattern does not match to the end"};
   }
   if (errno == ERANGE) {
-    std::cerr << "not representable\n";
-    std::abort();
+    throw std::range_error{"not representable"};
   }
   return x; // unreachable
 }
@@ -284,8 +276,8 @@ template <class T> inline auto do_strtod(std::string const &s) -> T {
 template <class T> struct parse_number<T, chars_format::general> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); r.is_hexadecimal) {
-      std::cerr << "chars_format::general does not parse hexfloat\n";
-      std::abort();
+      throw std::invalid_argument{
+          "chars_format::general does not parse hexfloat"};
     }
 
     return do_strtod<T>(s);
@@ -295,8 +287,7 @@ template <class T> struct parse_number<T, chars_format::general> {
 template <class T> struct parse_number<T, chars_format::hex> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); !r.is_hexadecimal) {
-      std::cerr << "chars_format::hex parses hexfloat\n";
-      std::abort();
+      throw std::invalid_argument{"chars_format::hex parses hexfloat"};
     }
 
     return do_strtod<T>(s);
@@ -306,12 +297,12 @@ template <class T> struct parse_number<T, chars_format::hex> {
 template <class T> struct parse_number<T, chars_format::scientific> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); r.is_hexadecimal) {
-      std::cerr << "chars_format::scientific does not parse hexfloat\n";
-      std::abort();
+      throw std::invalid_argument{
+          "chars_format::scientific does not parse hexfloat"};
     }
     if (s.find_first_of("eE") == std::string::npos) {
-      std::cerr << "chars_format::scientific requires exponent part\n";
-      std::abort();
+      throw std::invalid_argument{
+          "chars_format::scientific requires exponent part"};
     }
 
     return do_strtod<T>(s);
@@ -321,12 +312,12 @@ template <class T> struct parse_number<T, chars_format::scientific> {
 template <class T> struct parse_number<T, chars_format::fixed> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); r.is_hexadecimal) {
-      std::cerr << "chars_format::fixed does not parse hexfloat\n";
-      std::abort();
+      throw std::invalid_argument{
+          "chars_format::fixed does not parse hexfloat"};
     }
     if (s.find_first_of("eE") != std::string::npos) {
-      std::cerr << "chars_format::fixed does not parse exponent part\n";
-      std::abort();
+      throw std::invalid_argument{
+          "chars_format::fixed does not parse exponent part"};
     }
 
     return do_strtod<T>(s);
@@ -430,8 +421,7 @@ public:
 
     if constexpr (is_one_of(Shape, 'd') && details::standard_integer<T>) {
       action(details::parse_number<T, details::radix_10>());
-    } else if constexpr (is_one_of(Shape, 'i') &&
-                         details::standard_integer<T>) {
+    } else if constexpr (is_one_of(Shape, 'i') && details::standard_integer<T>) {
       action(details::parse_number<T>());
     } else if constexpr (is_one_of(Shape, 'u') &&
                          details::standard_unsigned_integer<T>) {
@@ -463,8 +453,7 @@ public:
 
   Argument &nargs(int num_args) {
     if (num_args < 0) {
-      std::cerr << "Number of arguments must be non-negative\n";
-      std::abort();
+      throw std::logic_error("Number of arguments must be non-negative");
     }
     m_num_args = num_args;
     return *this;
@@ -479,8 +468,7 @@ public:
   Iterator consume(Iterator start, Iterator end,
                    std::string_view used_name = {}) {
     if (!m_is_repeatable && m_is_used) {
-      std::cerr << "Duplicate argument\n";
-      std::abort();
+      throw std::runtime_error("Duplicate argument");
     }
     m_is_used = true;
     m_used_name = used_name;
@@ -493,8 +481,7 @@ public:
       if (auto expected = maybe_nargs()) {
         end = std::next(start, *expected);
         if (std::any_of(start, end, Argument::is_optional)) {
-          std::cerr << "optional argument in parameter sequence\n";
-          std::abort();
+          throw std::runtime_error("optional argument in parameter sequence");
         }
       }
 
@@ -521,13 +508,12 @@ public:
     if (m_default_value.has_value()) {
       return start;
     }
-    std::cerr << "Too few arguments for '" << std::string(m_used_name)
-              << "'.\n";
-    std::abort();
+    throw std::runtime_error("Too few arguments for '" +
+                             std::string(m_used_name) + "'.");
   }
 
   /*
-   * @aborts if argument values are not valid
+   * @throws std::runtime_error if argument values are not valid
    */
   void validate() const {
     if (auto expected = maybe_nargs()) {
@@ -537,21 +523,18 @@ public:
           std::stringstream stream;
           stream << m_used_name << ": expected " << *expected
                  << " argument(s). " << m_values.size() << " provided.";
-          std::cerr << stream.str() << "\n";
-          std::abort();
+          throw std::runtime_error(stream.str());
         }
         // TODO: check if an implicit value was programmed for this argument
         if (!m_is_used && !m_default_value.has_value() && m_is_required) {
           std::stringstream stream;
           stream << m_names[0] << ": required.";
-          std::cerr << stream.str() << "\n";
-          std::abort();
+          throw std::runtime_error(stream.str());
         }
         if (m_is_used && m_is_required && m_values.empty()) {
           std::stringstream stream;
           stream << m_used_name << ": no value provided.";
-          std::cerr << stream.str() << "\n";
-          std::abort();
+          throw std::runtime_error(stream.str());
         }
       } else if (m_values.size() != expected && !m_default_value.has_value()) {
         std::stringstream stream;
@@ -560,8 +543,7 @@ public:
         }
         stream << *expected << " argument(s) expected. " << m_values.size()
                << " provided.";
-        std::cerr << stream.str() << "\n";
-        std::abort();
+        throw std::runtime_error(stream.str());
       }
     }
   }
@@ -608,7 +590,7 @@ public:
 
   /*
    * Compare to an argument value of known type
-   * @aborts in case of incompatible types
+   * @throws std::logic_error in case of incompatible types
    */
   template <typename T> bool operator==(const T &rhs) const {
     if constexpr (!details::IsContainer<T>) {
@@ -801,7 +783,7 @@ private:
 
   /*
    * Get argument value given a type
-   * @aborts in case of incompatible types
+   * @throws std::logic_error in case of incompatible types
    */
   template <typename T> T get() const {
     if (!m_values.empty()) {
@@ -814,8 +796,7 @@ private:
     if (m_default_value.has_value()) {
       return std::any_cast<T>(m_default_value);
     }
-    std::cerr << "No value provided for '" + m_names.back() + "'.\n";
-    std::abort();
+    throw std::logic_error("No value provided for '" + m_names.back() + "'.");
   }
 
   /*
@@ -825,8 +806,7 @@ private:
    */
   template <typename T> auto present() const -> std::optional<T> {
     if (m_default_value.has_value()) {
-      std::cerr << "Argument with default value always presents\n";
-      std::abort();
+      throw std::logic_error("Argument with default value always presents");
     }
     if (m_values.empty()) {
       return std::nullopt;
@@ -875,7 +855,7 @@ public:
       : m_program_name(std::move(program_name)), m_version(std::move(version)) {
     if ((add_args & default_arguments::help) == default_arguments::help) {
       add_argument("-h", "--help")
-          .action([&](const auto & /*unused*/) {
+          .action([&](const auto &/*unused*/) {
             std::cout << help().str();
             std::exit(0);
           })
@@ -886,7 +866,7 @@ public:
     }
     if ((add_args & default_arguments::version) == default_arguments::version) {
       add_argument("-v", "--version")
-          .action([&](const auto & /*unused*/) {
+          .action([&](const auto &/*unused*/) {
             std::cout << m_version << std::endl;
             std::exit(0);
           })
@@ -901,8 +881,10 @@ public:
   ArgumentParser &operator=(ArgumentParser &&) = default;
 
   ArgumentParser(const ArgumentParser &other)
-      : m_program_name(other.m_program_name), m_version(other.m_version),
-        m_description(other.m_description), m_epilog(other.m_epilog),
+      : m_program_name(other.m_program_name),
+        m_version(other.m_version),
+        m_description(other.m_description),
+        m_epilog(other.m_epilog),
         m_is_parsed(other.m_is_parsed),
         m_positional_arguments(other.m_positional_arguments),
         m_optional_arguments(other.m_optional_arguments) {
@@ -972,7 +954,7 @@ public:
   /* Call parse_args_internal - which does all the work
    * Then, validate the parsed arguments
    * This variant is used mainly for testing
-   * @aborts in case of any invalid argument
+   * @throws std::runtime_error in case of any invalid argument
    */
   void parse_args(const std::vector<std::string> &arguments) {
     parse_args_internal(arguments);
@@ -981,7 +963,7 @@ public:
 
   /* Main entry point for parsing command-line arguments using this
    * ArgumentParser
-   * @aborts in case of any invalid argument
+   * @throws std::runtime_error in case of any invalid argument
    */
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
   void parse_args(int argc, const char *const argv[]) {
@@ -991,23 +973,22 @@ public:
   }
 
   /* Getter for options with default values.
-   * @aborts if parse_args() has not been previously called
-   * @aborts if there is no such option
-   * @aborts if the option has no value
-   * @aborts if the option is not of type T
+   * @throws std::logic_error if parse_args() has not been previously called
+   * @throws std::logic_error if there is no such option
+   * @throws std::logic_error if the option has no value
+   * @throws std::bad_any_cast if the option is not of type T
    */
   template <typename T = std::string> T get(std::string_view arg_name) const {
     if (!m_is_parsed) {
-      std::cerr << "Nothing parsed, no arguments are available.\n";
-      std::abort();
+      throw std::logic_error("Nothing parsed, no arguments are available.");
     }
     return (*this)[arg_name].get<T>();
   }
 
   /* Getter for options without default values.
    * @pre The option has no default value.
-   * @aborts if there is no such option
-   * @aborts if the option is not of type T
+   * @throws std::logic_error if there is no such option
+   * @throws std::bad_any_cast if the option is not of type T
    */
   template <typename T = std::string>
   auto present(std::string_view arg_name) const -> std::optional<T> {
@@ -1023,7 +1004,7 @@ public:
 
   /* Indexing operator. Return a reference to an Argument object
    * Used in conjuction with Argument.operator== e.g., parser["foo"] == true
-   * @aborts in case of an invalid argument name
+   * @throws std::logic_error in case of an invalid argument name
    */
   Argument &operator[](std::string_view arg_name) const {
     auto it = m_argument_map.find(arg_name);
@@ -1045,8 +1026,7 @@ public:
         return *(it->second);
       }
     }
-    std::cerr << ("No such argument: " + std::string(arg_name)) << "\n";
-    std::abort();
+    throw std::logic_error("No such argument: " + std::string(arg_name));
   }
 
   // Print help message
@@ -1109,7 +1089,7 @@ public:
 
 private:
   /*
-   * @aborts in case of any invalid argument
+   * @throws std::runtime_error in case of any invalid argument
    */
   void parse_args_internal(const std::vector<std::string> &arguments) {
     if (m_program_name.empty() && !arguments.empty()) {
@@ -1121,8 +1101,8 @@ private:
       const auto &current_argument = *it;
       if (Argument::is_positional(current_argument)) {
         if (positional_argument_it == std::end(m_positional_arguments)) {
-          std::cerr << "Maximum number of positional arguments exceeded\n";
-          std::abort();
+          throw std::runtime_error(
+              "Maximum number of positional arguments exceeded");
         }
         auto argument = positional_argument_it++;
         it = argument->consume(it, end);
@@ -1144,20 +1124,18 @@ private:
             auto argument = arg_map_it2->second;
             it = argument->consume(it, end, arg_map_it2->first);
           } else {
-            std::cerr << ("Unknown argument: " + current_argument) << "\n";
-            std::abort();
+            throw std::runtime_error("Unknown argument: " + current_argument);
           }
         }
       } else {
-        std::cerr << ("Unknown argument: " + current_argument) << "\n";
-        std::abort();
+        throw std::runtime_error("Unknown argument: " + current_argument);
       }
     }
     m_is_parsed = true;
   }
 
   /*
-   * @aborts in case of any invalid argument
+   * @throws std::runtime_error in case of any invalid argument
    */
   void parse_args_validate() {
     // Check if all arguments are parsed
