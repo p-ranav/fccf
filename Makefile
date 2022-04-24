@@ -5,8 +5,6 @@ LLVMCONFIG := llvm-config
 CXXFLAGS := -Isrc -O3 $(shell $(LLVMCONFIG) --cxxflags) $(RTTIFLAG) -std=c++17
 LLVMLDFLAGS := $(shell $(LLVMCONFIG) --ldflags --libs $(LLVMCOMPONENTS))
 SOURCES = src/main.cpp src/sse2_strstr.cpp src/searcher.cpp
-OBJECTS = src/main.o
-EXES = $(OBJECTS:.o=)
 CLANGLIBS = \
 	-lclang\
 	-lclangTooling\
@@ -28,7 +26,7 @@ CLANGLIBS = \
 	-lclangBasic\
 	$(shell $(LLVMCONFIG) --libs)
 
-all: $(OBJECTS) $(EXES)
+LINK_LIBS = $(CLANGLIBS) $(LLVMLDFLAGS) -lpthread
 
-%: %.o
-	$(CXX) -o $@ $< $(CLANGLIBS) $(LLVMLDFLAGS)
+all:
+	$(CXX) $(CXXFLAGS) -o main $(SOURCES) $(LINK_LIBS)

@@ -60,9 +60,9 @@ std::string_view::const_iterator needle_search(
     return haystack_end;
   }
 }
-
-void searcher::file_has_needle(std::string_view filename,
-			       std::string_view haystack)
+  
+void searcher::file_search(std::string_view filename,
+			   std::string_view haystack)
 
 {
   // Start from the beginning
@@ -79,7 +79,6 @@ void searcher::file_has_needle(std::string_view filename,
   std::string_view view(it, haystack_end - it);
   if (view.empty()) {
     it = haystack_end;
-    break;
   } else {
     auto pos =
       sse2_strstr_v2(std::string_view(it, haystack_end - it), m_query);
@@ -87,7 +86,6 @@ void searcher::file_has_needle(std::string_view filename,
       it += pos;
     } else {
       it = haystack_end;
-      break;
     }
   }
 #else
@@ -111,16 +109,13 @@ std::string get_file_contents(const char* filename)
     std::fclose(fp);
     return (contents);
   }
-  throw(errno);
+  return "";
 }
 
 void searcher::read_file_and_search(const char* path)
 {
-  try {
-    const std::string haystack = get_file_contents(path);
-    file_search(path, haystack);
-  } catch (const std::exception& e) {
-  }
+  const std::string haystack = get_file_contents(path);
+  file_search(path, haystack);
 }
 
 bool is_whitelisted(const std::string_view& str)
