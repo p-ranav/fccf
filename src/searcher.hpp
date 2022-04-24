@@ -31,6 +31,13 @@ struct searcher {
   static inline std::vector<const char *> m_clang_options;
   static inline bool m_search_for_enum;
   static inline bool m_search_for_struct;
+  static inline bool m_search_for_union;
+  static inline bool m_search_for_member_function;
+  static inline bool m_search_for_function;
+  static inline bool m_search_for_function_template;
+  static inline bool m_search_for_class;
+  static inline bool m_search_for_class_template;
+  static inline bool m_search_for_class_constructor;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char *path);

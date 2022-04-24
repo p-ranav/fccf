@@ -131,13 +131,20 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                    c.kind == CXCursor_EnumDecl) ||
                   (searcher::m_search_for_struct &&
                    c.kind == CXCursor_StructDecl) ||
-                  (false && c.kind == CXCursor_UnionDecl) ||
-                  (false && c.kind == CXCursor_CXXMethod) ||
-                  (false && c.kind == CXCursor_FunctionDecl) ||
-                  (false && c.kind == CXCursor_FunctionTemplate) ||
-                  (false && c.kind == CXCursor_ClassDecl) ||
-                  (false && c.kind == CXCursor_ClassTemplate) ||
-                  (false && c.kind == CXCursor_Constructor)) {
+                  (searcher::m_search_for_union &&
+                   c.kind == CXCursor_UnionDecl) ||
+                  (searcher::m_search_for_member_function &&
+                   c.kind == CXCursor_CXXMethod) ||
+                  (searcher::m_search_for_function &&
+                   c.kind == CXCursor_FunctionDecl) ||
+                  (searcher::m_search_for_function_template &&
+                   c.kind == CXCursor_FunctionTemplate) ||
+                  (searcher::m_search_for_class &&
+                   c.kind == CXCursor_ClassDecl) ||
+                  (searcher::m_search_for_class_template &&
+                   c.kind == CXCursor_ClassTemplate) ||
+                  (searcher::m_search_for_class_constructor &&
+                   c.kind == CXCursor_Constructor)) {
                 auto source_range = clang_getCursorExtent(c);
                 auto start_location = clang_getRangeStart(source_range);
                 auto end_location = clang_getRangeEnd(source_range);
@@ -153,12 +160,11 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
                 if (end_line >= start_line) {
 
-                  std::string_view member_function_name =
+                  std::string_view name =
                       (const char *)clang_getCursorDisplayName(c).data;
                   std::string_view query = searcher::m_query.data();
 
-                  if (member_function_name.find(query) !=
-                      std::string_view::npos) {
+                  if (name.find(query) != std::string_view::npos) {
 
                     auto haystack_size = haystack.size();
                     auto pos = source_range.begin_int_data - 2;

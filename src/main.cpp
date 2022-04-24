@@ -34,12 +34,53 @@ int main(int argc, char *argv[]) {
       .default_value(5);
 
   program.add_argument("--enum")
-      .help("Search for Enum declaration")
+      .help("Search for enum declaration")
       .default_value(false)
       .implicit_value(true);
 
   program.add_argument("--struct")
-      .help("Search for Struct declaration")
+      .help("Search for struct declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--union")
+      .help("Search for union declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--member-function")
+      .help("Search for class member function declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--function")
+      .help("Search for function declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--function-template")
+      .help("Search for function template declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("-F")
+      .help("Search for any function or function template or class member "
+            "function")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--class")
+      .help("Search for class declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--class-template")
+      .help("Search for class template declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--class-constructor")
+      .help("Search for class constructor declaration")
       .default_value(false)
       .implicit_value(true);
 
@@ -50,6 +91,14 @@ int main(int argc, char *argv[]) {
   auto num_threads = program.get<int>("-j");
   auto search_for_enum = program.get<bool>("--enum");
   auto search_for_struct = program.get<bool>("--struct");
+  auto search_for_union = program.get<bool>("--union");
+  auto search_for_member_function = program.get<bool>("--member-function");
+  auto search_for_function = program.get<bool>("--function");
+  auto search_for_function_template = program.get<bool>("--function-template");
+  auto search_for_any_function = program.get<bool>("-F");
+  auto search_for_class = program.get<bool>("--class");
+  auto search_for_class_template = program.get<bool>("--class-template");
+  auto search_for_class_constructor = program.get<bool>("--class-constructor");
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
     return str.size() >= suffix.size() &&
@@ -86,6 +135,16 @@ int main(int argc, char *argv[]) {
   searcher.m_clang_options = clang_options;
   searcher.m_search_for_enum = search_for_enum;
   searcher.m_search_for_struct = search_for_struct;
+  searcher.m_search_for_union = search_for_union;
+  searcher.m_search_for_member_function =
+      search_for_any_function || search_for_member_function;
+  searcher.m_search_for_function =
+      search_for_any_function || search_for_function;
+  searcher.m_search_for_function_template =
+      search_for_any_function || search_for_function_template;
+  searcher.m_search_for_class = search_for_class;
+  searcher.m_search_for_class_template = search_for_class_template;
+  searcher.m_search_for_class_constructor = search_for_class_constructor;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(".");
   return 0;
