@@ -101,6 +101,12 @@ int main(int argc, char *argv[]) {
   auto search_for_class_template = program.get<bool>("--class-template");
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
 
+  auto no_filter = !(search_for_enum || search_for_struct ||
+                     search_for_union || search_for_member_function ||
+                     search_for_function || search_for_function_template ||
+                     search_for_any_function || search_for_class ||
+                     search_for_class_template || search_for_class_constructor);
+
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
     return str.size() >= suffix.size() &&
            0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
@@ -134,18 +140,18 @@ int main(int argc, char *argv[]) {
   searcher.m_filter = filter;
   searcher.m_is_stdout = is_stdout;
   searcher.m_clang_options = clang_options;
-  searcher.m_search_for_enum = search_for_enum;
-  searcher.m_search_for_struct = search_for_struct;
-  searcher.m_search_for_union = search_for_union;
+  searcher.m_search_for_enum = no_filter || search_for_enum;
+  searcher.m_search_for_struct = no_filter || search_for_struct;
+  searcher.m_search_for_union = no_filter || search_for_union;
   searcher.m_search_for_member_function =
-      search_for_any_function || search_for_member_function;
+      no_filter || search_for_any_function || search_for_member_function;
   searcher.m_search_for_function =
-      search_for_any_function || search_for_function;
+      no_filter || search_for_any_function || search_for_function;
   searcher.m_search_for_function_template =
-      search_for_any_function || search_for_function_template;
-  searcher.m_search_for_class = search_for_class;
-  searcher.m_search_for_class_template = search_for_class_template;
-  searcher.m_search_for_class_constructor = search_for_class_constructor;
+      no_filter || search_for_any_function || search_for_function_template;
+  searcher.m_search_for_class = no_filter || search_for_class;
+  searcher.m_search_for_class_template = no_filter || search_for_class_template;
+  searcher.m_search_for_class_constructor = no_filter || search_for_class_constructor;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(path.c_str());
   return 0;
