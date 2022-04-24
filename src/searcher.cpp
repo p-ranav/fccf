@@ -127,7 +127,7 @@ namespace search
 
 			    // CXX Class Member function
 			    // Prints class::member_function_name with line number 
-			    if (c.kind == CXCursor_CXXMethod || c.kind == CXCursor_FunctionDecl) {
+			    if (c.kind == CXCursor_CXXMethod || c.kind == CXCursor_FunctionDecl || c.kind == CXCursor_FunctionTemplate) {
 			      auto source_range = clang_getCursorExtent(c);
 			      auto start_location = clang_getRangeStart(source_range);
 			      auto end_location = clang_getRangeEnd(source_range);

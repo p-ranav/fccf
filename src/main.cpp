@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
   program.add_argument("-f", "--filter")
       .help("Only evaluate files that match filter pattern")
-      .default_value(std::string {"*.[c|h]pp"});
+      .default_value(std::string {"*.*"});
 
   program.add_argument("-j")
       .help("Number of threads")
