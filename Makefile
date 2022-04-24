@@ -1,3 +1,7 @@
+ifeq ($(PREFIX),)
+    PREFIX := /usr/local
+endif
+
 CXX := g++
 LLVMCOMPONENTS := all
 RTTIFLAG := -fno-rtti
@@ -30,3 +34,7 @@ LINK_LIBS = $(CLANGLIBS) $(LLVMLDFLAGS) -lpthread
 
 all:
 	$(CXX) $(CXXFLAGS) -o fccf $(SOURCES) $(LINK_LIBS)
+
+.PHONY: install
+install:
+	install -m 557 fccf $(PREFIX)/bin/.
