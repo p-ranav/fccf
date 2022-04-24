@@ -104,7 +104,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
         index, path, m_clang_options.data(), m_clang_options.size(), nullptr, 0,
         CXTranslationUnit_None);
     if (unit == nullptr) {
-      fmt::print("Error: Unable to parse translation unit {}. Quitting.\n", path);
+      fmt::print("Error: Unable to parse translation unit {}. Quitting.\n",
+                 path);
       std::exit(-1);
     }
 
@@ -113,17 +114,17 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     struct client_args {
       std::string_view filename;
       std::string_view haystack;
-      fmt::memory_buffer* out;
+      fmt::memory_buffer *out;
     };
     client_args args = {filename, haystack, &out};
 
     if (clang_visitChildren(
             cursor,
             [](CXCursor c, CXCursor parent, CXClientData client_data) {
-              client_args * args = (client_args *)client_data;
+              client_args *args = (client_args *)client_data;
               auto filename = args->filename;
               auto haystack = args->haystack;
-              auto& out = *(args->out);
+              auto &out = *(args->out);
 
               // CXX Class Member function
               // Prints class::member_function_name with line number
@@ -158,16 +159,58 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                         source_range.end_int_data - source_range.begin_int_data;
 
                     if (pos < haystack_size) {
+
+                      // Type of find
                       if (c.kind == CXCursor_CXXMethod) {
-                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[MEMBER FUNCTION]\033[0m ");
+                        if (m_is_stdout) {
+                          fmt::format_to(
+                              std::back_inserter(out),
+                              "\n\033[1;36m[MEMBER FUNCTION]\033[0m ");
+                        } else {
+                          fmt::format_to(std::back_inserter(out),
+                                         "\n[MEMBER FUNCTION] ");
+                        }
                       } else if (c.kind == CXCursor_FunctionDecl) {
-                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[FUNCTION]\033[0m ");
+                        if (m_is_stdout) {
+                          fmt::format_to(std::back_inserter(out),
+                                         "\n\033[1;36m[FUNCTION]\033[0m ");
+                        } else {
+                          fmt::format_to(std::back_inserter(out),
+                                         "\n[FUNCTION] ");
+                        }
                       } else if (c.kind == CXCursor_FunctionTemplate) {
-                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[FUNCTION TEMPLATE]\033[0m ");
+                        if (m_is_stdout) {
+                          fmt::format_to(
+                              std::back_inserter(out),
+                              "\n\033[1;36m[FUNCTION TEMPLATE]\033[0m ");
+                        } else {
+                          fmt::format_to(std::back_inserter(out),
+                                         "\n[FUNCTION TEMPLATE] ");
+                        }
                       }
-                      fmt::format_to(std::back_inserter(out), "\033[1;32m{}\033[0m ", filename);
-                      fmt::format_to(std::back_inserter(out), "\033[1;37m(Line: {} to {})\033[0m\n", start_line, end_line);
-                      fmt::format_to(std::back_inserter(out), "{}\n\n", haystack.substr(pos, count));
+
+                      // Filename
+                      if (m_is_stdout) {
+                        fmt::format_to(std::back_inserter(out),
+                                       "\033[1;32m{}\033[0m ", filename);
+                      } else {
+                        fmt::format_to(std::back_inserter(out), "{} ",
+                                       filename);
+                      }
+
+                      // Line number (start, end)
+                      if (m_is_stdout) {
+                        fmt::format_to(std::back_inserter(out),
+                                       "\033[1;37m(Line: {} to {})\033[0m\n",
+                                       start_line, end_line);
+                      } else {
+                        fmt::format_to(std::back_inserter(out),
+                                       "(Line: {} to {})\n", start_line,
+                                       end_line);
+                      }
+
+                      fmt::format_to(std::back_inserter(out), "{}\n\n",
+                                     haystack.substr(pos, count));
                     }
                   }
                 }
@@ -207,11 +250,9 @@ void searcher::read_file_and_search(const char *path) {
 bool is_whitelisted(const std::string_view &str) {
   static const std::unordered_set<std::string_view> allowed_suffixes = {
       // C
-      ".c",
-      ".h",
+      ".c", ".h",
       // C++
-      ".cpp",
-      ".cc", ".cxx", ".hh", ".hxx", ".hpp",
+      ".cpp", ".cc", ".cxx", ".hh", ".hxx", ".hpp",
       // CUDA
       ".cu", ".cuh"};
 
@@ -258,8 +299,8 @@ int handle_posix_directory_entry(const char *filepath, const struct stat *info,
     bool consider_file = false;
     if (skip_fnmatch && is_whitelisted(filepath)) {
       consider_file = true;
-    }
-    else if (!skip_fnmatch && fnmatch(searcher::m_filter.data(), filepath, 0) == 0) {
+    } else if (!skip_fnmatch &&
+               fnmatch(searcher::m_filter.data(), filepath, 0) == 0) {
       consider_file = true;
     }
     if (consider_file) {

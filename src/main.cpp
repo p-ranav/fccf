@@ -6,24 +6,12 @@
 #include <searcher.hpp>
 #include <string>
 #include <string_view>
+#include <unistd.h>
 #include <vector>
 namespace fs = std::filesystem;
 
-std::string get_file_contents(const char *filename) {
-  std::FILE *fp = std::fopen(filename, "rb");
-  if (fp) {
-    std::string contents;
-    std::fseek(fp, 0, SEEK_END);
-    contents.resize(std::ftell(fp));
-    std::rewind(fp);
-    const auto size = std::fread(&contents[0], 1, contents.size(), fp);
-    std::fclose(fp);
-    return (contents);
-  }
-  return "";
-}
-
 int main(int argc, char *argv[]) {
+  const auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
   argparse::ArgumentParser program("search", "0.2.0\n");
@@ -82,6 +70,7 @@ int main(int argc, char *argv[]) {
   search::searcher searcher;
   searcher.m_query = query;
   searcher.m_filter = filter;
+  searcher.m_is_stdout = is_stdout;
   searcher.m_clang_options = clang_options;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(".");
