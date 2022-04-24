@@ -147,8 +147,9 @@ constexpr bool standard_integer =
     standard_signed_integer<T> || standard_unsigned_integer<T>;
 
 template <class F, class Tuple, class Extra, std::size_t... I>
-constexpr decltype(auto) apply_plus_one_impl(F &&f, Tuple &&t, Extra &&x,
-                                             std::index_sequence<I...> /*unused*/) {
+constexpr decltype(auto)
+apply_plus_one_impl(F &&f, Tuple &&t, Extra &&x,
+                    std::index_sequence<I...> /*unused*/) {
   return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...,
                      std::forward<Extra>(x));
 }
@@ -283,8 +284,7 @@ template <class T> inline auto do_strtod(std::string const &s) -> T {
 template <class T> struct parse_number<T, chars_format::general> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); r.is_hexadecimal) {
-      std::cerr << 
-          "chars_format::general does not parse hexfloat\n";
+      std::cerr << "chars_format::general does not parse hexfloat\n";
       std::abort();
     }
 
@@ -310,8 +310,7 @@ template <class T> struct parse_number<T, chars_format::scientific> {
       std::abort();
     }
     if (s.find_first_of("eE") == std::string::npos) {
-      std::cerr << 
-          "chars_format::scientific requires exponent part\n";
+      std::cerr << "chars_format::scientific requires exponent part\n";
       std::abort();
     }
 
@@ -322,13 +321,11 @@ template <class T> struct parse_number<T, chars_format::scientific> {
 template <class T> struct parse_number<T, chars_format::fixed> {
   auto operator()(std::string const &s) -> T {
     if (auto r = consume_hex_prefix(s); r.is_hexadecimal) {
-      std::cerr << 
-          "chars_format::fixed does not parse hexfloat\n";
+      std::cerr << "chars_format::fixed does not parse hexfloat\n";
       std::abort();
     }
     if (s.find_first_of("eE") != std::string::npos) {
-      std::cerr << 
-          "chars_format::fixed does not parse exponent part\n";
+      std::cerr << "chars_format::fixed does not parse exponent part\n";
       std::abort();
     }
 
@@ -433,7 +430,8 @@ public:
 
     if constexpr (is_one_of(Shape, 'd') && details::standard_integer<T>) {
       action(details::parse_number<T, details::radix_10>());
-    } else if constexpr (is_one_of(Shape, 'i') && details::standard_integer<T>) {
+    } else if constexpr (is_one_of(Shape, 'i') &&
+                         details::standard_integer<T>) {
       action(details::parse_number<T>());
     } else if constexpr (is_one_of(Shape, 'u') &&
                          details::standard_unsigned_integer<T>) {
@@ -495,8 +493,8 @@ public:
       if (auto expected = maybe_nargs()) {
         end = std::next(start, *expected);
         if (std::any_of(start, end, Argument::is_optional)) {
-	  std::cerr << "optional argument in parameter sequence\n";
-	  std::abort();
+          std::cerr << "optional argument in parameter sequence\n";
+          std::abort();
         }
       }
 
@@ -523,8 +521,8 @@ public:
     if (m_default_value.has_value()) {
       return start;
     }
-    std::cerr << "Too few arguments for '"
-	      << std::string(m_used_name) << "'.\n";
+    std::cerr << "Too few arguments for '" << std::string(m_used_name)
+              << "'.\n";
     std::abort();
   }
 
@@ -539,21 +537,21 @@ public:
           std::stringstream stream;
           stream << m_used_name << ": expected " << *expected
                  << " argument(s). " << m_values.size() << " provided.";
-	  std::cerr << stream.str() << "\n";
-	  std::abort();
+          std::cerr << stream.str() << "\n";
+          std::abort();
         }
         // TODO: check if an implicit value was programmed for this argument
         if (!m_is_used && !m_default_value.has_value() && m_is_required) {
           std::stringstream stream;
           stream << m_names[0] << ": required.";
-	  std::cerr << stream.str() << "\n";
-	  std::abort();
+          std::cerr << stream.str() << "\n";
+          std::abort();
         }
         if (m_is_used && m_is_required && m_values.empty()) {
           std::stringstream stream;
           stream << m_used_name << ": no value provided.";
-	  std::cerr << stream.str() << "\n";
-	  std::abort();
+          std::cerr << stream.str() << "\n";
+          std::abort();
         }
       } else if (m_values.size() != expected && !m_default_value.has_value()) {
         std::stringstream stream;
@@ -562,8 +560,8 @@ public:
         }
         stream << *expected << " argument(s) expected. " << m_values.size()
                << " provided.";
-	std::cerr << stream.str() << "\n";
-	std::abort();
+        std::cerr << stream.str() << "\n";
+        std::abort();
       }
     }
   }
@@ -877,7 +875,7 @@ public:
       : m_program_name(std::move(program_name)), m_version(std::move(version)) {
     if ((add_args & default_arguments::help) == default_arguments::help) {
       add_argument("-h", "--help")
-          .action([&](const auto &/*unused*/) {
+          .action([&](const auto & /*unused*/) {
             std::cout << help().str();
             std::exit(0);
           })
@@ -888,7 +886,7 @@ public:
     }
     if ((add_args & default_arguments::version) == default_arguments::version) {
       add_argument("-v", "--version")
-          .action([&](const auto &/*unused*/) {
+          .action([&](const auto & /*unused*/) {
             std::cout << m_version << std::endl;
             std::exit(0);
           })
@@ -903,10 +901,8 @@ public:
   ArgumentParser &operator=(ArgumentParser &&) = default;
 
   ArgumentParser(const ArgumentParser &other)
-      : m_program_name(other.m_program_name),
-        m_version(other.m_version),
-        m_description(other.m_description),
-        m_epilog(other.m_epilog),
+      : m_program_name(other.m_program_name), m_version(other.m_version),
+        m_description(other.m_description), m_epilog(other.m_epilog),
         m_is_parsed(other.m_is_parsed),
         m_positional_arguments(other.m_positional_arguments),
         m_optional_arguments(other.m_optional_arguments) {
@@ -1125,8 +1121,8 @@ private:
       const auto &current_argument = *it;
       if (Argument::is_positional(current_argument)) {
         if (positional_argument_it == std::end(m_positional_arguments)) {
-	  std::cerr << "Maximum number of positional arguments exceeded\n";
-	  std::abort();
+          std::cerr << "Maximum number of positional arguments exceeded\n";
+          std::abort();
         }
         auto argument = positional_argument_it++;
         it = argument->consume(it, end);
@@ -1148,13 +1144,13 @@ private:
             auto argument = arg_map_it2->second;
             it = argument->consume(it, end, arg_map_it2->first);
           } else {
-	    std::cerr << ("Unknown argument: " + current_argument) << "\n";
-	    std::abort();
+            std::cerr << ("Unknown argument: " + current_argument) << "\n";
+            std::abort();
           }
         }
       } else {
-	std::cerr << ("Unknown argument: " + current_argument) << "\n";
-	std::abort();
+        std::cerr << ("Unknown argument: " + current_argument) << "\n";
+        std::abort();
       }
     }
     m_is_parsed = true;

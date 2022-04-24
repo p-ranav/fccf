@@ -1,17 +1,16 @@
-#include <cstring>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <string_view>
 #include <argparse.hpp>
-#include <searcher.hpp>
+#include <cstring>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <searcher.hpp>
+#include <string>
+#include <string_view>
 #include <vector>
 namespace fs = std::filesystem;
 
-std::string get_file_contents(const char* filename)
-{
-  std::FILE* fp = std::fopen(filename, "rb");
+std::string get_file_contents(const char *filename) {
+  std::FILE *fp = std::fopen(filename, "rb");
   if (fp) {
     std::string contents;
     std::fseek(fp, 0, SEEK_END);
@@ -24,8 +23,7 @@ std::string get_file_contents(const char* filename)
   return "";
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
   argparse::ArgumentParser program("search", "0.2.0\n");
@@ -40,7 +38,7 @@ int main(int argc, char* argv[])
 
   program.add_argument("-f", "--filter")
       .help("Only evaluate files that match filter pattern")
-      .default_value(std::string {"*.*"});
+      .default_value(std::string{"*.*"});
 
   program.add_argument("-j")
       .help("Number of threads")
@@ -54,14 +52,15 @@ int main(int argc, char* argv[])
   auto num_threads = program.get<int>("-j");
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+    return str.size() >= suffix.size() &&
+           0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
   };
 
   std::vector<std::string> include_directory_list;
 
   // Iterate over the `std::filesystem::directory_entry` elements using `auto`
-  for (auto const& dir_entry : fs::recursive_directory_iterator(".")) {
-    auto& path = dir_entry.path();
+  for (auto const &dir_entry : fs::recursive_directory_iterator(".")) {
+    auto &path = dir_entry.path();
     if (fs::is_directory(path)) {
       // If directory name is include
       std::string_view directory_name = path.filename().c_str();
@@ -71,11 +70,11 @@ int main(int argc, char* argv[])
     }
   }
 
-  std::vector<const char*> clang_options;
+  std::vector<const char *> clang_options;
   clang_options.push_back("-x");
   clang_options.push_back("c++");
   clang_options.push_back("-std=c++17");
-  for (auto& include_directory : include_directory_list) {
+  for (auto &include_directory : include_directory_list) {
     clang_options.push_back(include_directory.c_str());
   }
 
@@ -84,7 +83,7 @@ int main(int argc, char* argv[])
   searcher.m_query = query;
   searcher.m_filter = filter;
   searcher.m_clang_options = clang_options;
-  searcher.m_ts = std::make_unique<thread_pool>(num_threads);  
+  searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(".");
   return 0;
 }
