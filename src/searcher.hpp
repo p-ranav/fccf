@@ -39,6 +39,7 @@ struct searcher {
   static inline bool m_search_for_class;
   static inline bool m_search_for_class_template;
   static inline bool m_search_for_class_constructor;
+  static inline bool m_search_for_typedef;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char *path);

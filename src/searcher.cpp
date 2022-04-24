@@ -1,4 +1,5 @@
 #include <fnmatch.h>
+#include <lexer.hpp>
 #include <searcher.hpp>
 namespace fs = std::filesystem;
 
@@ -100,7 +101,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   (searcher::m_search_for_class_template &&
                    c.kind == CXCursor_ClassTemplate) ||
                   (searcher::m_search_for_class_constructor &&
-                   c.kind == CXCursor_Constructor)) {
+                   c.kind == CXCursor_Constructor) ||
+                  (searcher::m_search_for_class_constructor &&
+                   c.kind == CXCursor_TypedefDecl)) {
                 auto source_range = clang_getCursorExtent(c);
                 auto start_location = clang_getRangeStart(source_range);
                 auto end_location = clang_getRangeEnd(source_range);
@@ -150,8 +153,10 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                                        end_line);
                       }
 
-                      fmt::format_to(std::back_inserter(out), "{}\n\n",
-                                     haystack.substr(pos, count));
+                      lexer lex;
+                      lex.tokenize_and_pretty_print(haystack.substr(pos, count),
+                                                    args->out);
+                      fmt::format_to(std::back_inserter(out), "\n");
                     }
                   }
                 }
@@ -237,13 +242,13 @@ void searcher::directory_search(const char *search_path) {
 
   for (auto const &dir_entry : fs::recursive_directory_iterator(search_path)) {
     auto &path = dir_entry.path();
-    const char* path_string = (const char*)path.c_str();
+    const char *path_string = (const char *)path.c_str();
     if (fs::is_regular_file(path)) {
       bool consider_file = false;
       if (skip_fnmatch && is_whitelisted(path_string)) {
         consider_file = true;
       } else if (!skip_fnmatch &&
-                fnmatch(searcher::m_filter.data(), path_string, 0) == 0) {
+                 fnmatch(searcher::m_filter.data(), path_string, 0) == 0) {
         consider_file = true;
       }
       if (consider_file) {
