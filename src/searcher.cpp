@@ -63,25 +63,6 @@ needle_search(std::string_view needle,
   }
 }
 
-auto find_needle_position(std::string_view str, std::string_view query) {
-  auto it = needle_search(query, str.begin(), str.end());
-
-  return it != str.end() ? std::size_t(it - str.begin())
-                         : std::string_view::npos;
-}
-
-void print_colored(std::string_view str, std::string_view query) {
-  auto pos = find_needle_position(str, query);
-  if (pos == std::string_view::npos) {
-    std::cout << str << "\n";
-    return;
-  } else {
-    std::cout << str.substr(0, pos) << "\033[1;31m"
-              << str.substr(pos, query.size()) << "\033[0m"
-              << str.substr(pos + query.size()) << "\n";
-  }
-}
-
 void searcher::file_search(std::string_view filename, std::string_view haystack)
 
 {
@@ -114,6 +95,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
   if (it != haystack_end) {
     // analyze file
     const char *path = filename.data();
+    std::cout << "Searching file: " << path << std::endl;
 
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
@@ -163,13 +145,6 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
                   if (member_function_name.find(query) !=
                       std::string_view::npos) {
-                    /*std::cout << (const
-                      char*)clang_getCursorDisplayName(clang_getCursorSemanticParent(c)).data
-                      << "::";
-                      std::cout << (const
-                      char*)clang_getCursorDisplayName(c).data
-                      << ":" << start_line << ":" << end_line << "\n";
-                    */
 
                     auto haystack_size = haystack.size();
                     auto pos = source_range.begin_int_data - 2;
@@ -194,7 +169,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       std::cout << "\033[1;37m"
                                 << "Line: " << start_line << " to " << end_line
                                 << ")\033[0m\n";
-                      print_colored(haystack.substr(pos, count), query);
+                      std::cout << haystack.substr(pos, count) << "\n";
                     }
                   }
                 }
@@ -233,7 +208,7 @@ bool is_whitelisted(const std::string_view &str) {
   static const std::unordered_set<std::string_view> allowed_suffixes = {
       // C
       ".c",
-      ".h"
+      ".h",
       // C++
       ".cpp",
       ".cc", ".cxx", ".hh", ".hxx", ".hpp",
@@ -242,8 +217,7 @@ bool is_whitelisted(const std::string_view &str) {
 
   bool result = false;
   for (const auto &suffix : allowed_suffixes) {
-    if (str.size() >= suffix.size() &&
-        str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0) {
+    if (std::equal(suffix.rbegin(), suffix.rend(), str.rbegin())) {
       result = true;
       break;
     }
@@ -281,8 +255,14 @@ int handle_posix_directory_entry(const char *filepath, const struct stat *info,
       searcher::m_filter == std::string_view{"*.*"};
 
   if (typeflag == FTW_F) {
-    if ((skip_fnmatch && is_whitelisted(filepath)) ||
-        fnmatch(searcher::m_filter.data(), filepath, 0) == 0) {
+    bool consider_file = false;
+    if (skip_fnmatch && is_whitelisted(filepath)) {
+      consider_file = true;
+    }
+    else if (!skip_fnmatch && fnmatch(searcher::m_filter.data(), filepath, 0) == 0) {
+      consider_file = true;
+    }
+    if (consider_file) {
       searcher::m_ts->push_task([pathstring = std::string{filepath}]() {
         searcher::read_file_and_search(pathstring.data());
       });
