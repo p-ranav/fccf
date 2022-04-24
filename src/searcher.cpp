@@ -23,8 +23,6 @@ needle_search(std::string_view needle,
 void searcher::file_search(std::string_view filename, std::string_view haystack)
 
 {
-  auto out = fmt::memory_buffer();
-
   // Start from the beginning
   const auto haystack_begin = haystack.cbegin();
   const auto haystack_end = haystack.cend();
@@ -54,8 +52,6 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
   if (it != haystack_end) {
     // analyze file
     const char *path = filename.data();
-    // TODO: Print with --verbose option
-    // fmt::format_to(std::back_inserter(out), "// {}\n", path);
 
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
@@ -72,9 +68,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     struct client_args {
       std::string_view filename;
       std::string_view haystack;
-      fmt::memory_buffer *out;
     };
-    client_args args = {filename, haystack, &out};
+    client_args args = {filename, haystack};
 
     if (clang_visitChildren(
             cursor,
@@ -82,7 +77,6 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               client_args *args = (client_args *)client_data;
               auto filename = args->filename;
               auto haystack = args->haystack;
-              auto &out = *(args->out);
 
               if ((searcher::m_search_for_enum &&
                    c.kind == CXCursor_EnumDecl) ||
@@ -133,6 +127,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                         source_range.end_int_data - source_range.begin_int_data;
 
                     if (pos < haystack_size) {
+                      auto out = fmt::memory_buffer();
+
                       // Filename
                       if (m_is_stdout) {
                         fmt::format_to(std::back_inserter(out),
@@ -155,8 +151,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
                       lexer lex;
                       lex.tokenize_and_pretty_print(haystack.substr(pos, count),
-                                                    args->out);
+                                                    &out);
                       fmt::format_to(std::back_inserter(out), "\n");
+                      fmt::print("{}", fmt::to_string(out));
                     }
                   }
                 }
@@ -169,8 +166,6 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
-
-    fmt::print("{}", fmt::to_string(out));
   }
 }
 
