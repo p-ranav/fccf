@@ -101,9 +101,16 @@ namespace search
       const char* path = filename.data();
 
       CXIndex index = clang_createIndex(0, 0);
+      const char *command_line_args[] = {"-x", "c++", 
+      "-std=c++17", 
+      // Build include directory list here
+      // Use -I to add include directories
+      0};
       CXTranslationUnit unit = clang_parseTranslationUnit(
 							  index,
-							  path, nullptr, 0,
+							  path,
+							  command_line_args,
+							  (sizeof command_line_args / sizeof *command_line_args) - 1,
 							  nullptr, 0,
 							  CXTranslationUnit_None);
       if (unit == nullptr) {
@@ -115,7 +122,7 @@ namespace search
 
       CXCursor cursor = clang_getTranslationUnitCursor(unit);
 
-      clang_visitChildren(
+      if (clang_visitChildren(
 			  cursor,
 			  [](CXCursor c, CXCursor parent, CXClientData client_data)
 			  {
@@ -123,19 +130,8 @@ namespace search
 			    auto filename = filename_and_contents->first;
 			    auto haystack = filename_and_contents->second;
 
-			    /*
-			    // Namespace check before recursing
-			    if (c.kind == CXCursor_Namespace) {	
-			    auto namespace_name =
-			    (const char*)clang_getCursorDisplayName(c).data;	
-			    if (strcmp(namespace_name, "search") == 0) {
-			    return CXChildVisit_Recurse;	  
-			    }
-			    }
-			    */
-
 			    // CXX Class Member function
-			    // Prints class::member_function_name with line number      
+			    // Prints class::member_function_name with line number 
 			    if (c.kind == CXCursor_CXXMethod) {
 			      auto source_range = clang_getCursorExtent(c);
 			      auto start_location = clang_getRangeStart(source_range);
@@ -175,7 +171,9 @@ namespace search
 			    }
 			    return CXChildVisit_Recurse;
 			  },
-			  (void*)(&filename_and_contents));
+			  (void*)(&filename_and_contents))) {
+	std::cerr << "Visit children failed for " << path << "\n";
+      }
 
       clang_disposeTranslationUnit(unit);
       clang_disposeIndex(index);
