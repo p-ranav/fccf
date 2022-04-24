@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
   std::cin.tie(NULL);
   argparse::ArgumentParser program("search", "0.2.0\n");
   program.add_argument("query");
-  program.add_argument("path").remaining();
+  program.add_argument("path");
 
   // Generic Program Information
   program.add_argument("-h", "--help")
@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
   program.parse_args(argc, argv);
 
   auto query = program.get<std::string>("query");
+  auto path = program.get<std::string>("path");
   auto filter = program.get<std::string>("-f");
   auto num_threads = program.get<int>("-j");
   auto search_for_enum = program.get<bool>("--enum");
@@ -108,7 +109,7 @@ int main(int argc, char *argv[]) {
   std::vector<std::string> include_directory_list;
 
   // Iterate over the `std::filesystem::directory_entry` elements using `auto`
-  for (auto const &dir_entry : fs::recursive_directory_iterator(".")) {
+  for (auto const &dir_entry : fs::recursive_directory_iterator(path)) {
     auto &path = dir_entry.path();
     if (fs::is_directory(path)) {
       // If directory name is include
@@ -146,6 +147,6 @@ int main(int argc, char *argv[]) {
   searcher.m_search_for_class_template = search_for_class_template;
   searcher.m_search_for_class_constructor = search_for_class_constructor;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
-  searcher.directory_search(".");
+  searcher.directory_search(path.c_str());
   return 0;
 }
