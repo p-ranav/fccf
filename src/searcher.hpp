@@ -26,6 +26,7 @@ struct searcher
   static inline std::unique_ptr<thread_pool> m_ts;
   static inline std::string_view m_query;
   static inline std::string_view m_filter;
+  static inline std::vector<const char*> m_clang_options;
 
   static void file_search(std::string_view filename,
 			  std::string_view haystack);

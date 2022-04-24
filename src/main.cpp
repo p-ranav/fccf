@@ -6,6 +6,7 @@
 #include <argparse.hpp>
 #include <searcher.hpp>
 #include <filesystem>
+#include <vector>
 namespace fs = std::filesystem;
 
 std::string get_file_contents(const char* filename)
@@ -52,10 +53,37 @@ int main(int argc, char* argv[])
   auto filter = program.get<std::string>("-f");
   auto num_threads = program.get<int>("-j");
 
+  auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
+    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+  };
+
+  std::vector<std::string> include_directory_list;
+
+  // Iterate over the `std::filesystem::directory_entry` elements using `auto`
+  for (auto const& dir_entry : fs::recursive_directory_iterator(".")) {
+    auto& path = dir_entry.path();
+    if (fs::is_directory(path)) {
+      // If directory name is include
+      std::string_view directory_name = path.filename().c_str();
+      if (ends_with(directory_name, "include")) {
+        include_directory_list.push_back("-I" + std::string{path});
+      }
+    }
+  }
+
+  std::vector<const char*> clang_options;
+  clang_options.push_back("-x");
+  clang_options.push_back("c++");
+  clang_options.push_back("-std=c++17");
+  for (auto& include_directory : include_directory_list) {
+    clang_options.push_back(include_directory.c_str());
+  }
+
   // Configure a searcher
   search::searcher searcher;
   searcher.m_query = query;
   searcher.m_filter = filter;
+  searcher.m_clang_options = clang_options;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);  
   searcher.directory_search(".");
   return 0;

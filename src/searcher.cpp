@@ -101,16 +101,11 @@ namespace search
       const char* path = filename.data();
 
       CXIndex index = clang_createIndex(0, 0);
-      const char *command_line_args[] = {"-x", "c++", 
-      "-std=c++17", 
-      // Build include directory list here
-      // Use -I to add include directories
-      0};
       CXTranslationUnit unit = clang_parseTranslationUnit(
 							  index,
 							  path,
-							  command_line_args,
-							  (sizeof command_line_args / sizeof *command_line_args) - 1,
+							  m_clang_options.data(),
+                m_clang_options.size(),
 							  nullptr, 0,
 							  CXTranslationUnit_None);
       if (unit == nullptr) {
@@ -132,7 +127,7 @@ namespace search
 
 			    // CXX Class Member function
 			    // Prints class::member_function_name with line number 
-			    if (c.kind == CXCursor_CXXMethod) {
+			    if (c.kind == CXCursor_CXXMethod || c.kind == CXCursor_FunctionDecl) {
 			      auto source_range = clang_getCursorExtent(c);
 			      auto start_location = clang_getRangeStart(source_range);
 			      auto end_location = clang_getRangeEnd(source_range);
@@ -163,8 +158,8 @@ namespace search
 				  auto count = source_range.end_int_data - source_range.begin_int_data;
 				  
 				  if (pos < haystack_size) {
-				    std::cout << filename << "\n";
-				    std::cout << haystack.substr(pos, count) << "\n\n";
+				    std::cout << "\n\033[1;36m" << filename << "\033[0m\n";
+				    std::cout << haystack.substr(pos, count) << "\n" << std::endl;
 				  }
 				}
 			      }
