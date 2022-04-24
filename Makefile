@@ -4,8 +4,8 @@ RTTIFLAG := -fno-rtti
 LLVMCONFIG := llvm-config
 CXXFLAGS := -I. -O3 $(shell $(LLVMCONFIG) --cxxflags) $(RTTIFLAG) -std=c++17
 LLVMLDFLAGS := $(shell $(LLVMCONFIG) --ldflags --libs $(LLVMCOMPONENTS))
-SOURCES = main.cpp sse2_strstr.cpp
-OBJECTS = main.o
+SOURCES = src/main.cpp src/sse2_strstr.cpp
+OBJECTS = src/main.o
 EXES = $(OBJECTS:.o=)
 CLANGLIBS = \
 	-lclang\
