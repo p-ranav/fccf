@@ -98,7 +98,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     // analyze file
     const char *path = filename.data();
     // TODO: Print with --verbose option
-    // fmt::format_to(std::back_inserter(out), "? {}\n", path);
+    // fmt::format_to(std::back_inserter(out), "// {}\n", path);
 
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
