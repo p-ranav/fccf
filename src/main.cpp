@@ -94,6 +94,11 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--verbose")
+      .help("Request verbose output")
+      .default_value(false)
+      .implicit_value(true);
+
   program.parse_args(argc, argv);
 
   auto query = program.get<std::string>("query");
@@ -112,6 +117,7 @@ int main(int argc, char *argv[]) {
   auto search_for_class_template = program.get<bool>("--class-template");
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
   auto search_for_typedef = program.get<bool>("--typedef");
+  auto verbose = program.get<bool>("--verbose");
 
   auto no_filter = !(search_for_enum || search_for_struct || search_for_union ||
                      search_for_member_function || search_for_function ||
@@ -151,6 +157,7 @@ int main(int argc, char *argv[]) {
   searcher.m_query = query;
   searcher.m_filter = filter;
   searcher.m_is_stdout = is_stdout;
+  searcher.m_verbose = verbose;
   searcher.m_clang_options = clang_options;
   searcher.m_exact_match = exact_match;
   searcher.m_search_for_enum = no_filter || search_for_enum;

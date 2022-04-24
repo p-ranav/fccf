@@ -52,6 +52,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
   if (it != haystack_end) {
     // analyze file
     const char *path = filename.data();
+    if (searcher::m_verbose) {
+      fmt::print("Checking {}\n", path);
+    }
 
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
