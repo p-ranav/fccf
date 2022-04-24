@@ -26,7 +26,7 @@ class lexer {
   bool is_start_of_number();
   void process_line_comment();
   void process_block_comment();
-  void process_identifier();
+  bool process_identifier(bool maybe_class_or_struct = false);
   void process_string();
   std::size_t get_number_of_characters(std::string_view str);
 

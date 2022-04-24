@@ -92,7 +92,7 @@ void lexer::process_block_comment() {
   }
 }
 
-void lexer::process_identifier() {
+bool lexer::process_identifier(bool maybe_class_or_struct) {
   auto start = m_index;
   while (m_index < m_input.size()) {
     char c = current();
@@ -209,21 +209,46 @@ void lexer::process_identifier() {
   // Check if identifier in keywords set
   if (keywords.find(identifier) != keywords.end()) {
     // Keyword
+    // Color it Purple
     fmt::format_to(std::back_inserter(*m_out), "\033[1;95m{}\033[0m",
                    identifier);
   } else if (types.find(identifier) != types.end()) {
     // Type
+    // Color it Blue
     fmt::format_to(std::back_inserter(*m_out), "\033[1;94m{}\033[0m",
                    identifier);
   } else {
-    if (next() == ':') {
+    if (current() == ':') {
       // Label
+      // COlor it green
+      fmt::format_to(std::back_inserter(*m_out), "\033[1;92m{}\033[0m",
+                     identifier);
+    } else if (current() == '.') {
+      // Member
+      // Color it cyan
+      fmt::format_to(std::back_inserter(*m_out), "\033[1;96m{}\033[0m",
+                     identifier);
+    } else if (current() == '(') {
+      // Function
+      // Color it yellow
       fmt::format_to(std::back_inserter(*m_out), "\033[1;93m{}\033[0m",
                      identifier);
+    } else if (maybe_class_or_struct) {
+      // Class or Struct name 
+      // Color it Blue
+      fmt::format_to(std::back_inserter(*m_out), "\033[1;94m{}\033[0m",
+                    identifier);
     } else {
       // Identifier
       fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
     }
+  }
+
+  if (identifier == "class" || identifier == "struct") {
+    return true;
+  }
+  else {
+    return false;
   }
 }
 
@@ -266,6 +291,9 @@ std::size_t lexer::get_number_of_characters(std::string_view str) {
 
 void lexer::tokenize_and_pretty_print(std::string_view input,
                                       fmt::memory_buffer *out) {
+
+  bool class_or_struct_keyword_encountered = false;
+
   if (!input.empty()) {
     m_input = input;
     m_out = out;
@@ -285,7 +313,7 @@ void lexer::tokenize_and_pretty_print(std::string_view input,
           continue;
         }
       } else if (is_start_of_identifier()) {
-        process_identifier();
+        class_or_struct_keyword_encountered = process_identifier(class_or_struct_keyword_encountered);
       } else if (is_start_of_string()) {
         process_string();
       } else {
