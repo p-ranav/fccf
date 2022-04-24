@@ -127,11 +127,17 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               auto haystack = args->haystack;
               auto &out = *(args->out);
 
-              // CXX Class Member function
-              // Prints class::member_function_name with line number
-              if (c.kind == CXCursor_CXXMethod ||
-                  c.kind == CXCursor_FunctionDecl ||
-                  c.kind == CXCursor_FunctionTemplate) {
+              if ((searcher::m_search_for_enum &&
+                   c.kind == CXCursor_EnumDecl) ||
+                  (searcher::m_search_for_struct &&
+                   c.kind == CXCursor_StructDecl) ||
+                  (false && c.kind == CXCursor_UnionDecl) ||
+                  (false && c.kind == CXCursor_CXXMethod) ||
+                  (false && c.kind == CXCursor_FunctionDecl) ||
+                  (false && c.kind == CXCursor_FunctionTemplate) ||
+                  (false && c.kind == CXCursor_ClassDecl) ||
+                  (false && c.kind == CXCursor_ClassTemplate) ||
+                  (false && c.kind == CXCursor_Constructor)) {
                 auto source_range = clang_getCursorExtent(c);
                 auto start_location = clang_getRangeStart(source_range);
                 auto end_location = clang_getRangeEnd(source_range);

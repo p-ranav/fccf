@@ -33,11 +33,23 @@ int main(int argc, char *argv[]) {
       .scan<'d', int>()
       .default_value(5);
 
+  program.add_argument("--enum")
+      .help("Search for Enum declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--struct")
+      .help("Search for Struct declaration")
+      .default_value(false)
+      .implicit_value(true);
+
   program.parse_args(argc, argv);
 
   auto query = program.get<std::string>("query");
   auto filter = program.get<std::string>("-f");
   auto num_threads = program.get<int>("-j");
+  auto search_for_enum = program.get<bool>("--enum");
+  auto search_for_struct = program.get<bool>("--struct");
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
     return str.size() >= suffix.size() &&
@@ -72,6 +84,8 @@ int main(int argc, char *argv[]) {
   searcher.m_filter = filter;
   searcher.m_is_stdout = is_stdout;
   searcher.m_clang_options = clang_options;
+  searcher.m_search_for_enum = search_for_enum;
+  searcher.m_search_for_struct = search_for_struct;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(".");
   return 0;

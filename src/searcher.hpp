@@ -29,6 +29,8 @@ struct searcher {
   static inline std::string_view m_filter;
   static inline bool m_is_stdout;
   static inline std::vector<const char *> m_clang_options;
+  static inline bool m_search_for_enum;
+  static inline bool m_search_for_struct;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char *path);
