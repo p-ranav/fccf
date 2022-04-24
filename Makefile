@@ -29,4 +29,4 @@ CLANGLIBS = \
 LINK_LIBS = $(CLANGLIBS) $(LLVMLDFLAGS) -lpthread
 
 all:
-	$(CXX) $(CXXFLAGS) -o main $(SOURCES) $(LINK_LIBS)
+	$(CXX) $(CXXFLAGS) -o fccf $(SOURCES) $(LINK_LIBS)
