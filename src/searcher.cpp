@@ -66,6 +66,8 @@ needle_search(std::string_view needle,
 void searcher::file_search(std::string_view filename, std::string_view haystack)
 
 {
+  auto out = fmt::memory_buffer();
+
   // Start from the beginning
   const auto haystack_begin = haystack.cbegin();
   const auto haystack_end = haystack.cend();
@@ -95,29 +97,33 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
   if (it != haystack_end) {
     // analyze file
     const char *path = filename.data();
-    std::cout << "Searching file: " << path << std::endl;
+    fmt::format_to(std::back_inserter(out), "Searching file {}\n", path);
 
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
         index, path, m_clang_options.data(), m_clang_options.size(), nullptr, 0,
         CXTranslationUnit_None);
     if (unit == nullptr) {
-      std::cerr << "Unable to parse translation unit. Quitting.\n";
+      fmt::print("Error: Unable to parse translation unit {}. Quitting.\n", path);
       std::exit(-1);
     }
 
-    std::pair<std::string_view, std::string_view> filename_and_contents = {
-        filename, haystack};
-
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
+
+    struct client_args {
+      std::string_view filename;
+      std::string_view haystack;
+      fmt::memory_buffer* out;
+    };
+    client_args args = {filename, haystack, &out};
 
     if (clang_visitChildren(
             cursor,
             [](CXCursor c, CXCursor parent, CXClientData client_data) {
-              auto filename_and_contents =
-                  (std::pair<std::string_view, std::string_view> *)client_data;
-              auto filename = filename_and_contents->first;
-              auto haystack = filename_and_contents->second;
+              client_args * args = (client_args *)client_data;
+              auto filename = args->filename;
+              auto haystack = args->haystack;
+              auto& out = *(args->out);
 
               // CXX Class Member function
               // Prints class::member_function_name with line number
@@ -153,35 +159,29 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
                     if (pos < haystack_size) {
                       if (c.kind == CXCursor_CXXMethod) {
-                        std::cout << "\n\033[1;36m"
-                                  << "[MEMBER FUNCTION]"
-                                  << "\033[0m ";
+                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[MEMBER FUNCTION]\033[0m ");
                       } else if (c.kind == CXCursor_FunctionDecl) {
-                        std::cout << "\n\033[1;36m"
-                                  << "[FUNCTION]"
-                                  << "\033[0m ";
+                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[FUNCTION]\033[0m ");
                       } else if (c.kind == CXCursor_FunctionTemplate) {
-                        std::cout << "\n\033[1;36m"
-                                  << "[FUNCTION TEMPLATE]"
-                                  << "\033[0m ";
+                        fmt::format_to(std::back_inserter(out), "\n\033[1;36m[FUNCTION TEMPLATE]\033[0m ");
                       }
-                      std::cout << "\033[1;32m" << filename << "\033[0m (";
-                      std::cout << "\033[1;37m"
-                                << "Line: " << start_line << " to " << end_line
-                                << ")\033[0m\n";
-                      std::cout << haystack.substr(pos, count) << "\n";
+                      fmt::format_to(std::back_inserter(out), "\033[1;32m{}\033[0m ", filename);
+                      fmt::format_to(std::back_inserter(out), "\033[1;37m(Line: {} to {})\033[0m\n", start_line, end_line);
+                      fmt::format_to(std::back_inserter(out), "{}\n\n", haystack.substr(pos, count));
                     }
                   }
                 }
               }
               return CXChildVisit_Recurse;
             },
-            (void *)(&filename_and_contents))) {
-      std::cerr << "Visit children failed for " << path << "\n";
+            (void *)(&args))) {
+      fmt::print("Error: Visit children failed for {}\n)", path);
     }
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
+
+    fmt::print("{}", fmt::to_string(out));
   }
 }
 
