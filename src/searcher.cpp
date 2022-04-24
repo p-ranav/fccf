@@ -161,10 +161,12 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                 if (end_line >= start_line) {
 
                   std::string_view name =
-                      (const char *)clang_getCursorDisplayName(c).data;
+                      (const char *)clang_getCursorSpelling(c).data;
                   std::string_view query = searcher::m_query.data();
 
-                  if (name.find(query) != std::string_view::npos) {
+                  if ((searcher::m_exact_match && name == query) ||
+                      (!searcher::m_exact_match &&
+                       name.find(query) != std::string_view::npos)) {
 
                     auto haystack_size = haystack.size();
                     auto pos = source_range.begin_int_data - 2;

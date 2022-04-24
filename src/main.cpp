@@ -24,6 +24,11 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--exact-match")
+      .help("Only consider exact matches")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("-f", "--filter")
       .help("Only evaluate files that match filter pattern")
       .default_value(std::string{"*.*"});
@@ -88,6 +93,7 @@ int main(int argc, char *argv[]) {
 
   auto query = program.get<std::string>("query");
   auto path = program.get<std::string>("path");
+  auto exact_match = program.get<bool>("--exact-match");
   auto filter = program.get<std::string>("-f");
   auto num_threads = program.get<int>("-j");
   auto search_for_enum = program.get<bool>("--enum");
@@ -101,11 +107,11 @@ int main(int argc, char *argv[]) {
   auto search_for_class_template = program.get<bool>("--class-template");
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
 
-  auto no_filter = !(search_for_enum || search_for_struct ||
-                     search_for_union || search_for_member_function ||
-                     search_for_function || search_for_function_template ||
-                     search_for_any_function || search_for_class ||
-                     search_for_class_template || search_for_class_constructor);
+  auto no_filter = !(search_for_enum || search_for_struct || search_for_union ||
+                     search_for_member_function || search_for_function ||
+                     search_for_function_template || search_for_any_function ||
+                     search_for_class || search_for_class_template ||
+                     search_for_class_constructor);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
     return str.size() >= suffix.size() &&
@@ -140,6 +146,7 @@ int main(int argc, char *argv[]) {
   searcher.m_filter = filter;
   searcher.m_is_stdout = is_stdout;
   searcher.m_clang_options = clang_options;
+  searcher.m_exact_match = exact_match;
   searcher.m_search_for_enum = no_filter || search_for_enum;
   searcher.m_search_for_struct = no_filter || search_for_struct;
   searcher.m_search_for_union = no_filter || search_for_union;
@@ -151,7 +158,8 @@ int main(int argc, char *argv[]) {
       no_filter || search_for_any_function || search_for_function_template;
   searcher.m_search_for_class = no_filter || search_for_class;
   searcher.m_search_for_class_template = no_filter || search_for_class_template;
-  searcher.m_search_for_class_constructor = no_filter || search_for_class_constructor;
+  searcher.m_search_for_class_constructor =
+      no_filter || search_for_class_constructor;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(path.c_str());
   return 0;

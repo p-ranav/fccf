@@ -29,6 +29,7 @@ struct searcher {
   static inline std::string_view m_filter;
   static inline bool m_is_stdout;
   static inline std::vector<const char *> m_clang_options;
+  static inline bool m_exact_match;
   static inline bool m_search_for_enum;
   static inline bool m_search_for_struct;
   static inline bool m_search_for_union;
