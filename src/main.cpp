@@ -188,5 +188,6 @@ int main(int argc, char *argv[]) {
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
   searcher.directory_search(path.c_str());
+  fmt::print("\n");
   return 0;
 }
