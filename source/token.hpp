@@ -2,7 +2,8 @@
 #define TOKEN_H
 #include <cstddef>
 
-enum class token_type {
+enum class token_type
+{
   newline,
 
   // Single-character tokens.
@@ -66,7 +67,8 @@ enum class token_type {
   eof
 };
 
-struct token {
+struct token
+{
   token_type type;
   std::size_t start_index;
   std::size_t end_index;
@@ -74,10 +76,20 @@ struct token {
   std::size_t start_col;
   std::size_t end_col;
 
-  token(token_type type, std::size_t start_index, std::size_t end_index,
-        std::size_t line, std::size_t start_col, std::size_t end_col)
-      : type(type), start_index(start_index), end_index(end_index), line(line),
-        start_col(start_col), end_col(end_col) {}
+  token(token_type type,
+        std::size_t start_index,
+        std::size_t end_index,
+        std::size_t line,
+        std::size_t start_col,
+        std::size_t end_col)
+      : type(type)
+      , start_index(start_index)
+      , end_index(end_index)
+      , line(line)
+      , start_col(start_col)
+      , end_col(end_col)
+  {
+  }
 };
 
 #endif

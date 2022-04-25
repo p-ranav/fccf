@@ -12,20 +12,23 @@
   valid.
 */
 #include <stdarg.h>
-#include <stdio.h>
+#include <studio.h>
 #include <stdlib.h>
 #include <string.h>
 #if _WIN32
-#include <malloc.h>
+#  include <malloc.h>
 #else
-#include <alloca.h>
+#  include <alloca.h>
 #endif
 
 #include <utf8.h>
 
-static const uint32_t offsetsFromUTF8[6] = {0x00000000UL, 0x00003080UL,
-                                            0x000E2080UL, 0x03C82080UL,
-                                            0xFA082080UL, 0x82082080UL};
+static const uint32_t offsetsFromUTF8[6] = {0x00000000UL,
+                                            0x00003080UL,
+                                            0x000E2080UL,
+                                            0x03C82080UL,
+                                            0xFA082080UL,
+                                            0x82082080UL};
 
 static const char trailingBytesForUTF8[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -41,7 +44,8 @@ static const char trailingBytesForUTF8[256] = {
     3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5};
 
 /* returns length of next utf-8 sequence */
-int u8_seqlen(char *s) {
+int u8_seqlen(char* s)
+{
   return trailingBytesForUTF8[(unsigned int)(unsigned char)s[0]] + 1;
 }
 
@@ -55,9 +59,10 @@ int u8_seqlen(char *s) {
    for all the characters.
    if sz = srcsz+1 (i.e. 4*srcsz+4 bytes), there will always be enough space.
 */
-int u8_toucs(uint32_t *dest, int sz, char *src, int srcsz) {
+int u8_toucs(uint32_t* dest, int sz, char* src, int srcsz)
+{
   uint32_t ch;
-  char *src_end = src + srcsz;
+  char* src_end = src + srcsz;
   int nb;
   int i = 0;
 
@@ -72,18 +77,18 @@ int u8_toucs(uint32_t *dest, int sz, char *src, int srcsz) {
     }
     ch = 0;
     switch (nb) {
-      /* these fall through deliberately */
-    case 3:
-      ch += (unsigned char)*src++;
-      ch <<= 6;
-    case 2:
-      ch += (unsigned char)*src++;
-      ch <<= 6;
-    case 1:
-      ch += (unsigned char)*src++;
-      ch <<= 6;
-    case 0:
-      ch += (unsigned char)*src++;
+        /* these fall through deliberately */
+      case 3:
+        ch += (unsigned char)*src++;
+        ch <<= 6;
+      case 2:
+        ch += (unsigned char)*src++;
+        ch <<= 6;
+      case 1:
+        ch += (unsigned char)*src++;
+        ch <<= 6;
+      case 0:
+        ch += (unsigned char)*src++;
     }
     ch -= offsetsFromUTF8[nb];
     dest[i++] = ch;
@@ -105,10 +110,11 @@ done_toucs:
    the NUL as well.
    the destination string will never be bigger than the source string.
 */
-int u8_toutf8(char *dest, int sz, uint32_t *src, int srcsz) {
+int u8_toutf8(char* dest, int sz, uint32_t* src, int srcsz)
+{
   uint32_t ch;
   int i = 0;
-  char *dest_end = dest + sz;
+  char* dest_end = dest + sz;
 
   while (srcsz < 0 ? src[i] != 0 : i < srcsz) {
     ch = src[i];
@@ -142,7 +148,8 @@ int u8_toutf8(char *dest, int sz, uint32_t *src, int srcsz) {
   return i;
 }
 
-int u8_wc_toutf8(char *dest, uint32_t ch) {
+int u8_wc_toutf8(char* dest, uint32_t ch)
+{
   if (ch < 0x80) {
     dest[0] = (char)ch;
     return 1;
@@ -169,19 +176,21 @@ int u8_wc_toutf8(char *dest, uint32_t ch) {
 }
 
 /* charnum => byte offset */
-int u8_offset(char *str, int charnum) {
+int u8_offset(char* str, int charnum)
+{
   int offs = 0;
 
   while (charnum > 0 && str[offs]) {
-    (void)(isutf(str[++offs]) || isutf(str[++offs]) || isutf(str[++offs]) ||
-           ++offs);
+    (void)(isutf(str[++offs]) || isutf(str[++offs]) || isutf(str[++offs])
+           || ++offs);
     charnum--;
   }
   return offs;
 }
 
 /* byte offset => charnum */
-int u8_charnum(char *s, int offset) {
+int u8_charnum(char* s, int offset)
+{
   int charnum = 0, offs = 0;
 
   while (offs < offset && s[offs]) {
@@ -192,7 +201,8 @@ int u8_charnum(char *s, int offset) {
 }
 
 /* number of characters */
-int u8_strlen(char *s) {
+int u8_strlen(char* s)
+{
   int count = 0;
   int i = 0;
 
@@ -203,7 +213,8 @@ int u8_strlen(char *s) {
 }
 
 /* reads the next utf-8 sequence out of a string, updating an index */
-uint32_t u8_nextchar(char *s, int *i) {
+uint32_t u8_nextchar(char* s, int* i)
+{
   uint32_t ch = 0;
   int sz = 0;
 
@@ -217,24 +228,31 @@ uint32_t u8_nextchar(char *s, int *i) {
   return ch;
 }
 
-void u8_inc(char *s, int *i) {
+void u8_inc(char* s, int* i)
+{
   (void)(isutf(s[++(*i)]) || isutf(s[++(*i)]) || isutf(s[++(*i)]) || ++(*i));
 }
 
-void u8_dec(char *s, int *i) {
+void u8_dec(char* s, int* i)
+{
   (void)(isutf(s[--(*i)]) || isutf(s[--(*i)]) || isutf(s[--(*i)]) || --(*i));
 }
 
-int octal_digit(char c) { return (c >= '0' && c <= '7'); }
+int octal_digit(char c)
+{
+  return (c >= '0' && c <= '7');
+}
 
-int hex_digit(char c) {
-  return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
-          (c >= 'a' && c <= 'f'));
+int hex_digit(char c)
+{
+  return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F')
+          || (c >= 'a' && c <= 'f'));
 }
 
 /* assumes that src points to the character after a backslash
    returns number of input characters processed */
-int u8_read_escape_sequence(char *str, uint32_t *dest) {
+int u8_read_escape_sequence(char* str, uint32_t* dest)
+{
   uint32_t ch;
   char digs[9] = "\0\0\0\0\0\0\0\0";
   int dno = 0, i = 1;
@@ -287,7 +305,8 @@ int u8_read_escape_sequence(char *str, uint32_t *dest) {
 /* convert a string with literal \uxxxx or \Uxxxxxxxx characters to UTF-8
    example: u8_unescape(mybuf, 256, "hello\\u220e")
    note the double backslash is needed if called on a C string literal */
-int u8_unescape(char *buf, int sz, char *src) {
+int u8_unescape(char* buf, int sz, char* src)
+{
   int c = 0, amt;
   uint32_t ch;
   char temp[4];
@@ -312,7 +331,8 @@ int u8_unescape(char *buf, int sz, char *src) {
   return c;
 }
 
-int u8_escape_wchar(char *buf, int sz, uint32_t ch) {
+int u8_escape_wchar(char* buf, int sz, uint32_t ch)
+{
   if (ch == L'\n')
     return snprintf(buf, sz, "\\n");
   else if (ch == L'\t')
@@ -339,7 +359,8 @@ int u8_escape_wchar(char *buf, int sz, uint32_t ch) {
   return snprintf(buf, sz, "%c", (char)ch);
 }
 
-int u8_escape(char *buf, int sz, char *src, int escape_quotes) {
+int u8_escape(char* buf, int sz, char* src, int escape_quotes)
+{
   int c = 0, i = 0, amt;
 
   while (src[i] && c < sz) {
@@ -357,7 +378,8 @@ int u8_escape(char *buf, int sz, char *src, int escape_quotes) {
   return c;
 }
 
-char *u8_strchr(char *s, uint32_t ch, int *charn) {
+char* u8_strchr(char* s, uint32_t ch, int* charn)
+{
   int i = 0, lasti = 0;
   uint32_t c;
 
@@ -373,7 +395,8 @@ char *u8_strchr(char *s, uint32_t ch, int *charn) {
   return NULL;
 }
 
-char *u8_memchr(char *s, uint32_t ch, size_t sz, int *charn) {
+char* u8_memchr(char* s, uint32_t ch, size_t sz, int* charn)
+{
   int i = 0, lasti = 0;
   uint32_t c;
   int csz;
@@ -397,17 +420,18 @@ char *u8_memchr(char *s, uint32_t ch, size_t sz, int *charn) {
   return NULL;
 }
 
-int u8_is_locale_utf8(char *locale) {
+int u8_is_locale_utf8(char* locale)
+{
   /* this code based on libutf8 */
-  const char *cp = locale;
+  const char* cp = locale;
 
   for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++) {
     if (*cp == '.') {
-      const char *encoding = ++cp;
+      const char* encoding = ++cp;
       for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++)
         ;
-      if ((cp - encoding == 5 && !strncmp(encoding, "UTF-8", 5)) ||
-          (cp - encoding == 4 && !strncmp(encoding, "utf8", 4)))
+      if ((cp - encoding == 5 && !strncmp(encoding, "UTF-8", 5))
+          || (cp - encoding == 4 && !strncmp(encoding, "utf8", 4)))
         return 1; /* it's UTF-8 */
       break;
     }
@@ -415,27 +439,29 @@ int u8_is_locale_utf8(char *locale) {
   return 0;
 }
 
-int u8_vprintf(char *fmt, va_list ap) {
+int u8_vprintf(char* fmt, va_list ap)
+{
   int cnt, sz = 0;
-  char *buf;
-  uint32_t *wcs;
+  char* buf;
+  uint32_t* wcs;
 
   sz = 512;
-  buf = (char *)alloca(sz);
+  buf = (char*)alloca(sz);
 try_print:
   cnt = vsnprintf(buf, sz, fmt, ap);
   if (cnt >= sz) {
-    buf = (char *)alloca(cnt - sz + 1);
+    buf = (char*)alloca(cnt - sz + 1);
     sz = cnt + 1;
     goto try_print;
   }
-  wcs = (uint32_t *)alloca((cnt + 1) * sizeof(uint32_t));
+  wcs = (uint32_t*)alloca((cnt + 1) * sizeof(uint32_t));
   cnt = u8_toucs(wcs, cnt + 1, buf, cnt);
-  printf("%ls", (wchar_t *)wcs);
+  printf("%ls", (wchar_t*)wcs);
   return cnt;
 }
 
-int u8_printf(char *fmt, ...) {
+int u8_printf(char* fmt, ...)
+{
   int cnt;
   va_list args;
 

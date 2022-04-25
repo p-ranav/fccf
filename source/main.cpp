@@ -1,16 +1,18 @@
-#include <argparse.hpp>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <searcher.hpp>
 #include <string>
 #include <string_view>
-#include <unistd.h>
 #include <vector>
+
+#include <argparse.hpp>
+#include <searcher.hpp>
+#include <unistd.h>
 namespace fs = std::filesystem;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
   const auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
@@ -31,7 +33,7 @@ int main(int argc, char *argv[]) {
 
   program.add_argument("-f", "--filter")
       .help("Only evaluate files that match filter pattern")
-      .default_value(std::string{"*.*"});
+      .default_value(std::string {"*.*"});
 
   program.add_argument("-j")
       .help("Number of threads")
@@ -69,8 +71,9 @@ int main(int argc, char *argv[]) {
       .implicit_value(true);
 
   program.add_argument("-F")
-      .help("Search for any function or function template or class member "
-            "function")
+      .help(
+          "Search for any function or function template or class member "
+          "function")
       .default_value(false)
       .implicit_value(true);
 
@@ -110,17 +113,17 @@ int main(int argc, char *argv[]) {
       .implicit_value(true);
 
   program.add_argument("-I", "--include-dir")
-    .default_value<std::vector<std::string>>({})
-    .append()
-    .help("Additional include directories");
+      .default_value<std::vector<std::string>>({})
+      .append()
+      .help("Additional include directories");
 
   program.add_argument("-l", "--language")
-    .default_value<std::string>(std::string{"c++"})
-    .help("Language option used by clang");
+      .default_value<std::string>(std::string {"c++"})
+      .help("Language option used by clang");
 
   program.add_argument("--std")
-    .default_value<std::string>(std::string{"c++17"})
-    .help("C++ standard to be used by clang");
+      .default_value<std::string>(std::string {"c++17"})
+      .help("C++ standard to be used by clang");
 
   try {
     program.parse_args(argc, argv);
@@ -151,50 +154,52 @@ int main(int argc, char *argv[]) {
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
   auto cpp_std = program.get<std::string>("--std");
-  auto ignore_single_line_results = program.get<bool>("--ignore-single-line-results");
+  auto ignore_single_line_results =
+      program.get<bool>("--ignore-single-line-results");
 
-  auto no_filter = !(search_for_enum || search_for_struct || search_for_union ||
-                     search_for_member_function || search_for_function ||
-                     search_for_function_template || search_for_any_function ||
-                     search_for_class || search_for_class_template ||
-                     search_for_class_constructor);
+  auto no_filter = !(search_for_enum || search_for_struct || search_for_union
+                     || search_for_member_function || search_for_function
+                     || search_for_function_template || search_for_any_function
+                     || search_for_class || search_for_class_template
+                     || search_for_class_constructor);
 
-  auto ends_with = [](std::string_view str, std::string_view suffix) -> bool {
-    return str.size() >= suffix.size() &&
-           0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
+  auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
+  {
+    return str.size() >= suffix.size()
+        && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
   };
 
-  std::vector<std::string> include_directory_list; // {"-I."};
+  std::vector<std::string> include_directory_list;  // {"-I."};
 
-  for (auto& id: include_dirs) {
+  for (auto& id : include_dirs) {
     include_directory_list.push_back("-I" + id);
   }
 
   // Iterate over the `std::filesystem::directory_entry` elements using `auto`
-  for (auto const &dir_entry : fs::recursive_directory_iterator(path)) {
-    auto &path = dir_entry.path();
+  for (auto const& dir_entry : fs::recursive_directory_iterator(path)) {
+    auto& path = dir_entry.path();
     if (fs::is_directory(path)) {
       // If directory name is include
       std::string_view directory_name = path.filename().c_str();
       if (ends_with(directory_name, "include")) {
-        include_directory_list.push_back("-I" + std::string{path});
+        include_directory_list.push_back("-I" + std::string {path});
       }
-    //   else {
-    //     for (const auto& include_entry : fs::directory_iterator(path)) {
-    //       if (fs::is_regular_file(include_entry.path())) {
-    //         auto possible_include_path = include_entry.path().c_str();
-    //         if (ends_with(possible_include_path, ".h") || 
-    //             ends_with(possible_include_path, ".hpp")) {
-    //             include_directory_list.push_back("-I" + std::string{possible_include_path});
-    //             break;
-    //         }
-    //       }
-    //     }
-    //   }
+      //   else {
+      //     for (const auto& include_entry : fs::directory_iterator(path)) {
+      //       if (fs::is_regular_file(include_entry.path())) {
+      //         auto possible_include_path = include_entry.path().c_str();
+      //         if (ends_with(possible_include_path, ".h") ||
+      //             ends_with(possible_include_path, ".hpp")) {
+      //             include_directory_list.push_back("-I" +
+      //             std::string{possible_include_path}); break;
+      //         }
+      //       }
+      //     }
+      //   }
     }
   }
 
-  std::vector<const char *> clang_options;
+  std::vector<const char*> clang_options;
   clang_options.push_back("-x");
   clang_options.push_back(language_option.c_str());
 
@@ -203,7 +208,7 @@ int main(int argc, char *argv[]) {
     clang_options.push_back(language_standard.c_str());
   }
 
-  for (auto &include_directory : include_directory_list) {
+  for (auto& include_directory : include_directory_list) {
     clang_options.push_back(include_directory.c_str());
   }
 
@@ -216,7 +221,8 @@ int main(int argc, char *argv[]) {
   searcher.m_clang_options = clang_options;
   searcher.m_exact_match = exact_match;
   searcher.m_search_for_enum = no_filter || search_for_enum;
-  searcher.m_search_for_struct = no_filter || search_for_any_class_or_struct || search_for_struct;
+  searcher.m_search_for_struct =
+      no_filter || search_for_any_class_or_struct || search_for_struct;
   searcher.m_search_for_union = no_filter || search_for_union;
   searcher.m_search_for_member_function =
       no_filter || search_for_any_function || search_for_member_function;
@@ -224,13 +230,15 @@ int main(int argc, char *argv[]) {
       no_filter || search_for_any_function || search_for_function;
   searcher.m_search_for_function_template =
       no_filter || search_for_any_function || search_for_function_template;
-  searcher.m_search_for_class = no_filter || search_for_any_class_or_struct || search_for_class;
-  searcher.m_search_for_class_template = no_filter || search_for_any_class_or_struct || search_for_class_template;
+  searcher.m_search_for_class =
+      no_filter || search_for_any_class_or_struct || search_for_class;
+  searcher.m_search_for_class_template =
+      no_filter || search_for_any_class_or_struct || search_for_class_template;
   searcher.m_search_for_class_constructor =
       no_filter || search_for_class_constructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
-  searcher.m_ts = std::make_unique<thread_pool>(num_threads);  
+  searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 
   searcher.directory_search(path.c_str());
   fmt::print("\n");
