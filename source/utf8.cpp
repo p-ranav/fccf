@@ -12,7 +12,7 @@
   valid.
 */
 #include <stdarg.h>
-#include <studio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <string.h>
 #if _WIN32
