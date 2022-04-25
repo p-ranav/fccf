@@ -96,16 +96,16 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -std=c++17 -fexceptions")
 
 add_library(
     fccf_lib OBJECT
-    src/searcher.cpp
-    src/sse2_strstr.cpp
-    src/lexer.cpp
-    src/utf8.cpp
+    source/searcher.cpp
+    source/sse2_strstr.cpp
+    source/lexer.cpp
+    source/utf8.cpp
 )
 
 target_include_directories(
     fccf_lib ${warning_guard}
     PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
     ${argparse_SOURCE_DIR}/include/argparse
 )
 
@@ -116,7 +116,7 @@ target_link_libraries(fccf_lib PRIVATE fmt::fmt Threads::Threads)
 
 # ---- Declare executable ----
 
-add_llvm_executable(fccf_exe src/main.cpp)
+add_llvm_executable(fccf_exe source/main.cpp)
 
 set_target_properties(
     fccf_exe PROPERTIES
