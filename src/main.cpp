@@ -104,6 +104,19 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--include-dir")
+    .default_value<std::vector<std::string>>({})
+    .append()
+    .help("Additional include directories");
+
+  program.add_argument("--lang")
+    .default_value<std::string>(std::string{"c++"})
+    .help("Language option used by clang");
+
+  program.add_argument("--std")
+    .default_value<std::string>(std::string{"c++17"})
+    .help("C++ standard to be used by clang");  
+
   try {
     program.parse_args(argc, argv);
   } catch (const std::runtime_error& err) {
@@ -130,6 +143,9 @@ int main(int argc, char *argv[]) {
   auto search_for_any_class_or_struct = program.get<bool>("-C");
   auto search_for_typedef = program.get<bool>("--typedef");
   auto verbose = program.get<bool>("--verbose");
+  auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
+  auto language_option = program.get<std::string>("--lang");
+  auto cpp_std = program.get<std::string>("--std");
 
   auto no_filter = !(search_for_enum || search_for_struct || search_for_union ||
                      search_for_member_function || search_for_function ||
@@ -143,6 +159,10 @@ int main(int argc, char *argv[]) {
   };
 
   std::vector<std::string> include_directory_list; // {"-I."};
+
+  for (auto& id: include_dirs) {
+    include_directory_list.push_back("-I" + id);
+  }
 
   // Iterate over the `std::filesystem::directory_entry` elements using `auto`
   for (auto const &dir_entry : fs::recursive_directory_iterator(path)) {
@@ -170,8 +190,13 @@ int main(int argc, char *argv[]) {
 
   std::vector<const char *> clang_options;
   clang_options.push_back("-x");
-  clang_options.push_back("c++");
-  clang_options.push_back("-std=c++17");
+  clang_options.push_back(language_option.c_str());
+
+  auto language_standard = "-std=" + cpp_std;
+  if (language_option == "c++") {
+    clang_options.push_back(language_standard.c_str());
+  }
+
   for (auto &include_directory : include_directory_list) {
     clang_options.push_back(include_directory.c_str());
   }
