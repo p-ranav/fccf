@@ -142,7 +142,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                 clang_getExpansionLocation(end_location, &file, &end_line,
                                            &end_column, &end_offset);
 
-                if (end_line >= start_line) {
+                if ((!searcher::m_ignore_single_line_results && end_line >= start_line) ||
+		    (m_ignore_single_line_results && end_line > start_line)) {
 
                   std::string_view name =
                       (const char *)clang_getCursorSpelling(c).data;

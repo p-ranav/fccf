@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--exact-match")
+  program.add_argument("-E", "--exact-match")
       .help("Only consider exact matches")
       .default_value(false)
       .implicit_value(true);
@@ -89,6 +89,11 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--isl", "--ignore-single-line-results")
+      .help("Ignore forward declarations, member function declarations, etc.")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--typedef")
       .help("Search for typedef declaration")
       .default_value(false)
@@ -104,18 +109,18 @@ int main(int argc, char *argv[]) {
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--include-dir")
+  program.add_argument("-I", "--include-dir")
     .default_value<std::vector<std::string>>({})
     .append()
     .help("Additional include directories");
 
-  program.add_argument("--lang")
+  program.add_argument("-l", "--language")
     .default_value<std::string>(std::string{"c++"})
     .help("Language option used by clang");
 
   program.add_argument("--std")
     .default_value<std::string>(std::string{"c++17"})
-    .help("C++ standard to be used by clang");  
+    .help("C++ standard to be used by clang");
 
   try {
     program.parse_args(argc, argv);
@@ -144,8 +149,9 @@ int main(int argc, char *argv[]) {
   auto search_for_typedef = program.get<bool>("--typedef");
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
-  auto language_option = program.get<std::string>("--lang");
+  auto language_option = program.get<std::string>("--language");
   auto cpp_std = program.get<std::string>("--std");
+  auto ignore_single_line_results = program.get<bool>("--ignore-single-line-results");
 
   auto no_filter = !(search_for_enum || search_for_struct || search_for_union ||
                      search_for_member_function || search_for_function ||
@@ -223,7 +229,9 @@ int main(int argc, char *argv[]) {
   searcher.m_search_for_class_constructor =
       no_filter || search_for_class_constructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
-  searcher.m_ts = std::make_unique<thread_pool>(num_threads);
+  searcher.m_ignore_single_line_results = ignore_single_line_results;
+  searcher.m_ts = std::make_unique<thread_pool>(num_threads);  
+
   searcher.directory_search(path.c_str());
   fmt::print("\n");
   return 0;
