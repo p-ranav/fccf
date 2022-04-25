@@ -68,7 +68,14 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     clang_options.push_back("-I/usr/include");
     clang_options.push_back("-I/usr/local/include");
 
-    CXIndex index = clang_createIndex(0, 1);
+    CXIndex index;
+
+    if (searcher::m_verbose) {
+      index  = clang_createIndex(0, 1);
+    }
+    else {
+      index  = clang_createIndex(0, 0);
+    }
     CXTranslationUnit unit = clang_parseTranslationUnit(
         index, path, clang_options.data(), clang_options.size(), nullptr, 0,
 	CXTranslationUnit_KeepGoing | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles);
