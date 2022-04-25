@@ -2,50 +2,6 @@
 #include <searcher.hpp>
 namespace fs = std::filesystem;
 
-/* We want POSIX.1-2008 + XSI, i.e. SuSv4, features */
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 700
-#endif
-
-/* If the C library can support 64-bit file sizes
-   and offsets, using the standard names,
-   these defines tell the C library to do so. */
-#ifndef _LARGEFILE64_SOURCE
-#define _LARGEFILE64_SOURCE
-#endif
-
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
-#endif
-
-#include <errno.h>
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#include <ftw.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-
-/* POSIX.1 says each process has at least 20 file descriptors.
- * Three of those belong to the standard streams.
- * Here, we use a conservative estimate of 15 available;
- * assuming we use at most two for other uses in this program,
- * we should never run into any problems.
- * Most trees are shallower than that, so it is efficient.
- * Deeper trees are traversed fine, just a bit slower.
- * (Linux allows typically hundreds to thousands of open files,
- *  so you'll probably never see any issues even if you used
- *  a much higher value, say a couple of hundred, but
- *  15 is a safe, reasonable value.)
- */
-#ifndef USE_FDS
-#define USE_FDS 15
-#endif
-
 #include <clang-c/Index.h> // This is libclang.
 
 #include <utility>
@@ -275,36 +231,28 @@ bool exclude_directory(const char *path) {
   return false;
 }
 
-int handle_posix_directory_entry(const char *filepath, const struct stat *info,
-                                 const int typeflag, struct FTW *pathinfo) {
+void searcher::directory_search(const char *search_path) {
   static const bool skip_fnmatch =
       searcher::m_filter == std::string_view{"*.*"};
 
-  if (typeflag == FTW_F) {
-    bool consider_file = false;
-    if (skip_fnmatch && is_whitelisted(filepath)) {
-      consider_file = true;
-    } else if (!skip_fnmatch &&
-               fnmatch(searcher::m_filter.data(), filepath, 0) == 0) {
-      consider_file = true;
-    }
-    if (consider_file) {
-      searcher::m_ts->push_task([pathstring = std::string{filepath}]() {
-        searcher::read_file_and_search(pathstring.data());
-      });
+  for (auto const &dir_entry : fs::recursive_directory_iterator(search_path)) {
+    auto &path = dir_entry.path();
+    const char* path_string = (const char*)path.c_str();
+    if (fs::is_regular_file(path)) {
+      bool consider_file = false;
+      if (skip_fnmatch && is_whitelisted(path_string)) {
+        consider_file = true;
+      } else if (!skip_fnmatch &&
+                fnmatch(searcher::m_filter.data(), path_string, 0) == 0) {
+        consider_file = true;
+      }
+      if (consider_file) {
+        searcher::m_ts->push_task([pathstring = std::string{path_string}]() {
+          searcher::read_file_and_search(pathstring.data());
+        });
+      }
     }
   }
-
-  return FTW_CONTINUE;
-}
-
-void searcher::directory_search(const char *path) {
-  /* Invalid directory path? */
-  if (path == NULL || *path == '\0')
-    return;
-
-  nftw(path, handle_posix_directory_entry, USE_FDS,
-       FTW_PHYS | FTW_ACTIONRETVAL);
   searcher::m_ts->wait_for_tasks();
 }
 
