@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
            0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
   };
 
-  std::vector<std::string> include_directory_list;
+  std::vector<std::string> include_directory_list; // {"-I."};
 
   // Iterate over the `std::filesystem::directory_entry` elements using `auto`
   for (auto const &dir_entry : fs::recursive_directory_iterator(path)) {
@@ -153,6 +153,18 @@ int main(int argc, char *argv[]) {
       if (ends_with(directory_name, "include")) {
         include_directory_list.push_back("-I" + std::string{path});
       }
+    //   else {
+    //     for (const auto& include_entry : fs::directory_iterator(path)) {
+    //       if (fs::is_regular_file(include_entry.path())) {
+    //         auto possible_include_path = include_entry.path().c_str();
+    //         if (ends_with(possible_include_path, ".h") || 
+    //             ends_with(possible_include_path, ".hpp")) {
+    //             include_directory_list.push_back("-I" + std::string{possible_include_path});
+    //             break;
+    //         }
+    //       }
+    //     }
+    //   }
     }
   }
 

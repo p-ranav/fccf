@@ -100,7 +100,15 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   (searcher::m_search_for_class_constructor &&
                    c.kind == CXCursor_Constructor) ||
                   (searcher::m_search_for_class_constructor &&
-                   c.kind == CXCursor_TypedefDecl)) {
+                   c.kind == CXCursor_TypedefDecl) ||
+                  // Lambda function
+                  // TODO: Check if there is a better way
+                  // than searching every variable declaration
+                  (searcher::m_search_for_function &&
+                   c.kind == CXCursor_VarDecl)) {
+
+                // fmt::print("Found something in {}\n", filename);
+
                 auto source_range = clang_getCursorExtent(c);
                 auto start_location = clang_getRangeStart(source_range);
                 auto end_location = clang_getRangeEnd(source_range);
@@ -128,6 +136,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     auto pos = source_range.begin_int_data - 2;
                     auto count =
                         source_range.end_int_data - source_range.begin_int_data;
+
+                    // fmt::print("{} - Pos: {}, Count: {}, Haystack size: {}\n", filename, pos, count, haystack_size);
 
                     if (pos < haystack_size) {
                       auto out = fmt::memory_buffer();
