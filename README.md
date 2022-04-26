@@ -44,3 +44,42 @@ cmake --build build
 # Install
 sudo cmake --install build
 ```
+
+<img width="1057" alt="image" src="https://user-images.githubusercontent.com/8450091/165409872-39b52d7e-e510-4f13-8e71-48c2d46f46c7.png">
+
+## `fccf` Arguments
+
+```console
+~/dev/fccf$ fccf --help
+1 argument(s) expected. 0 provided.
+Usage: search [options] query path
+
+Positional arguments:
+query
+path
+
+Optional arguments:
+-h --help                               shows help message and exits [default: false]
+-v --version                            prints version information and exits [default: false]
+-h --help                               Shows help message and exits [default: false]
+-E --exact-match                        Only consider exact matches [default: false]
+-f --filter                             Only evaluate files that match filter pattern [default: "*.*"]
+-j                                      Number of threads [default: 5]
+--enum                                  Search for enum declaration [default: false]
+--struct                                Search for struct declaration [default: false]
+--union                                 Search for union declaration [default: false]
+--member-function                       Search for class member function declaration [default: false]
+--function                              Search for function declaration [default: false]
+--function-template                     Search for function template declaration [default: false]
+-F                                      Search for any function or function template or class member function [default: false]
+--class                                 Search for class declaration [default: false]
+--class-template                        Search for class template declaration [default: false]
+--class-constructor                     Search for class constructor declaration [default: false]
+--isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
+--typedef                               Search for typedef declaration [default: false]
+--verbose                               Request verbose output [default: false]
+-C                                      Search for any class or class template or struct [default: false]
+-I --include-dir                        Additional include directories [default: {}]
+-l --language                           Language option used by clang [default: "c++"]
+--std                                   C++ standard to be used by clang [default: "c++17"]
+```
