@@ -56,10 +56,23 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
       fmt::print("Checking {}\n", path);
     }
 
-    CXIndex index = clang_createIndex(0, 0);
+    // Update a copy of the clang options
+    // Include 
+    auto clang_options = m_clang_options;
+    auto parent_path = fs::path(filename).parent_path();
+    auto parent_path_str = "-I" + parent_path.string();
+    auto grandparent_path = parent_path.parent_path();
+    auto grandparent_path_str = "-I" + grandparent_path.string();
+    clang_options.push_back(parent_path_str.c_str());
+    clang_options.push_back(grandparent_path_str.c_str());
+    clang_options.push_back("-I/usr/include");
+    clang_options.push_back("-I/usr/local/include");
+
+    CXIndex index = clang_createIndex(0, 1);
     CXTranslationUnit unit = clang_parseTranslationUnit(
-        index, path, m_clang_options.data(), m_clang_options.size(), nullptr, 0,
-        CXTranslationUnit_None);
+        index, path, clang_options.data(), clang_options.size(), nullptr, 0,
+	CXTranslationUnit_KeepGoing | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles);
+    // CXTranslationUnit_None);
     if (unit == nullptr) {
       fmt::print("Error: Unable to parse translation unit {}. Quitting.\n",
                  path);
