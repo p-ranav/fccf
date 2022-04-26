@@ -10,6 +10,5 @@ fccf recursively searches a directory to find C/C++ source code based on a searc
 * Finds nodes that match the user query, e.g., class declaration, function template declaration, enum declaration etc.
 * Pretty-prints the identified snippet of source code to the terminal.
 
-<p align="center">
-  <img src="images/demo.png"/>  
-</p>
+https://user-images.githubusercontent.com/8450091/165304534-53688f0a-0a7d-4081-9537-08debe65f321.mp4
+
