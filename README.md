@@ -45,8 +45,6 @@ cmake --build build
 sudo cmake --install build
 ```
 
-<img width="1057" alt="image" src="https://user-images.githubusercontent.com/8450091/165409872-39b52d7e-e510-4f13-8e71-48c2d46f46c7.png">
-
 ## `fccf` Arguments
 
 ```console
