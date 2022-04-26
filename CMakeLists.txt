@@ -111,6 +111,7 @@ target_include_directories(
 
 target_compile_features(fccf_lib PUBLIC cxx_std_17)
 target_compile_options (fccf_lib PRIVATE -fexceptions)
+separate_arguments(LLVM_LDFLAGS UNIX_COMMAND "${LLVM_LDFLAGS}")
 target_link_options(fccf_lib PRIVATE ${LLVM_LDFLAGS})
 target_link_libraries(fccf_lib PRIVATE fmt::fmt Threads::Threads)
 
