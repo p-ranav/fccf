@@ -176,6 +176,15 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     // fmt::print("{} - Pos: {}, Count: {}, Haystack size:
                     // {}\n", filename, pos, count, haystack_size);
 
+                    if (c.kind == CXCursor_DeclRefExpr) {
+                      // Update pos and count so that the entire line of code is printed
+                      // instead of just the reference (e.g., variable name)
+                      auto newline_before = haystack.rfind('\n', pos);
+                      auto newline_after = haystack.find('\n', pos);
+                      pos = newline_before + 1;
+                      count = newline_after - newline_before;
+                    }
+
                     if (pos < haystack_size) {
                       auto out = fmt::memory_buffer();
 
