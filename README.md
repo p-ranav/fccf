@@ -9,4 +9,5 @@ fccf recursively searches a directory to find C/C++ source code based on a searc
 
 The following demo video shows `fccf` searching and finding snippets of code in [torvalds/linux](https://github.com/torvalds/linux/).
 
-https://user-images.githubusercontent.com/8450091/165400066-76c88459-f95b-4256-8106-c2e2ba1e3153.mp4
+https://user-images.githubusercontent.com/8450091/165400381-9ba49a62-97fb-4f4a-890a-0dc9b20dfe75.mp4
+
