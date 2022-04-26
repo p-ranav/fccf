@@ -2,7 +2,7 @@
 
 fccf recursively searches a directory to find C/C++ source code based on a search string.
 
-https://user-images.githubusercontent.com/8450091/165310192-f4f4d5c6-40c7-4451-8cc9-079ed1591a56.mp4
+https://user-images.githubusercontent.com/8450091/165315616-c8918375-63cb-4f45-8313-46a38f3e20f6.mp4
 
 ## Highlights
 
