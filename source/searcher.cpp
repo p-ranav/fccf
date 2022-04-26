@@ -188,6 +188,10 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       // Update pos and count so that the entire line of code is printed
                       // instead of just the reference (e.g., variable name)
                       auto newline_before = haystack.rfind('\n', pos);
+                      while (haystack[newline_before + 1] == ' ' || 
+                             haystack[newline_before + 1] == '\t') {
+                        newline_before += 1;
+                      }
                       auto newline_after = haystack.find('\n', pos);
                       pos = newline_before + 1;
                       count = newline_after - newline_before - 1;
