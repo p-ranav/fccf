@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--idr", "--include-declaration-references")
+  program.add_argument("--dre", "--declaration-reference-expression")
       .help("Search for expressions that refer to some value declaration, e.g., function, variable, or enumerator.")
       .default_value(false)
       .implicit_value(true);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
   auto search_for_any_class_or_struct = program.get<bool>("-C");
   auto search_for_typedef = program.get<bool>("--typedef");
-  auto search_for_declaration_reference = program.get<bool>("--include-declaration-references");
+  auto search_for_declaration_reference = program.get<bool>("--declaration-reference-expression");
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
       no_filter || search_for_class_constructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
   searcher.m_search_for_declaration_reference =
-      search_for_declaration_reference;
+      no_filter || search_for_declaration_reference;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 
