@@ -8,7 +8,7 @@ fccf recursively searches a directory to find C/C++ source code based on a searc
 * Uses [clang-c](https://clang.llvm.org/doxygen/group__CINDEX.html) to build an AST of each source file.
 * Analyzes nodes in the AST for each translation unit.
 * Finds nodes that match the user query, e.g., class declaration, function template declaration, enum declaration etc.
-* Pretty-prints the identified snippet of source code to the terminal
+* Pretty-prints the identified snippet of source code to the terminal.
 
 <p align="center">
   <img height="600" src="images/demo.png"/>  
