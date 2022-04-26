@@ -27,3 +27,18 @@ Note that search results here include:
 
 https://user-images.githubusercontent.com/8450091/165402206-65d9ed43-b9dd-4528-92bd-0b4ce76b6468.mp4
 
+## Build Instructions
+
+Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com/p-ranav/fccf/blob/master/BUILDING.md).
+
+```bash
+git clone https://github.com/p-ranav/fccf
+cd fccf
+
+# Build
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+cmake --build build
+
+# Install
+sudo cmake --install build
+```
