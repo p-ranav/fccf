@@ -172,7 +172,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                        c.kind != CXCursor_MemberRefExpr &&
                        c.kind != CXCursor_MemberRef && 
                        c.kind != CXCursor_FieldDecl)
-                      || (name.find(query) != std::string_view::npos))
+                      || (!searcher::m_exact_match && name.find(query) != std::string_view::npos))
                   {
                     auto haystack_size = haystack.size();
                     auto pos = source_range.begin_int_data - 2;
