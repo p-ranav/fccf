@@ -11,5 +11,5 @@ fccf recursively searches a directory to find C/C++ source code based on a searc
 * Pretty-prints the identified snippet of source code to the terminal.
 
 <p align="center">
-  <img height="600" src="images/demo.png"/>  
+  <img src="images/demo.png"/>  
 </p>
