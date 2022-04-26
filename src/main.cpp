@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
   clang_options.push_back(language_option.c_str());
 
   auto language_standard = "-std=" + cpp_std;
-  if (language_option == "c++") {    
+  if (language_option == "c++") {
     clang_options.push_back(language_standard.c_str());
   }
 
