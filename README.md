@@ -1,6 +1,6 @@
 # fccf: Fast C/C++ Code Finder
 
-fccf recursively searches a directory to find C/C++ source code based on a search string.
+`fccf` is a command-line tool that quickly searches through C/C++ source code in a directory based on a search string and prints relevant code snippets that match the query.
 
 ## Highlights
 
