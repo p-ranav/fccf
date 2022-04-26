@@ -31,6 +31,8 @@ https://user-images.githubusercontent.com/8450091/165402206-65d9ed43-b9dd-4528-9
 
 Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com/p-ranav/fccf/blob/master/BUILDING.md).
 
+NOTE: `fccf` requires `libclang` and `LLVM` installed.
+
 ```bash
 git clone https://github.com/p-ranav/fccf
 cd fccf
