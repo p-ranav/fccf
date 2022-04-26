@@ -44,6 +44,7 @@ struct searcher
   static inline bool m_search_for_class_constructor;
   static inline bool m_search_for_typedef;
   static inline bool m_ignore_single_line_results;
+  static inline bool m_search_for_declaration_reference;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char* path);

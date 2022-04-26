@@ -110,7 +110,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               auto filename = args->filename;
               auto haystack = args->haystack;
 
-              if ((searcher::m_search_for_enum && c.kind == CXCursor_EnumDecl)
+              if ((searcher::m_search_for_declaration_reference && 
+                      c.kind == CXCursor_DeclRefExpr) || 
+                  (searcher::m_search_for_enum && c.kind == CXCursor_EnumDecl)
                   || (searcher::m_search_for_struct
                       && c.kind == CXCursor_StructDecl)
                   || (searcher::m_search_for_union
