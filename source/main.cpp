@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   const auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
-  argparse::ArgumentParser program("search", "0.1.0\n");
+  argparse::ArgumentParser program("search", "0.2.0\n");
   program.add_argument("query");
   program.add_argument("path");
 
