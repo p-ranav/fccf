@@ -34,6 +34,9 @@ Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com
 NOTE: `fccf` requires `libclang` and `LLVM` installed.
 
 ```bash
+# Install libclang and LLVM
+# sudo apt install libclang-dev llvm
+
 git clone https://github.com/p-ranav/fccf
 cd fccf
 
