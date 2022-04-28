@@ -142,7 +142,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   || (searcher::m_search_for_namespace_alias
                       && c.kind == CXCursor_NamespaceAlias)
                   || (searcher::m_search_for_variable_declaration
-                      && c.kind == CXCursor_VarDecl))
+                      && c.kind == CXCursor_VarDecl)
+                  || (searcher::m_search_for_parameter_declaration
+                      && c.kind == CXCursor_ParmDecl))
               {
                 // fmt::print("Found something in {}\n", filename);
 
@@ -187,11 +189,13 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     // fmt::print("{} - Pos: {}, Count: {}, Haystack size:
                     // {}\n", filename, pos, count, haystack_size);
 
-                    if (searcher::m_search_expressions
-                        && (c.kind == CXCursor_DeclRefExpr
-                            || c.kind == CXCursor_MemberRefExpr
-                            || c.kind == CXCursor_MemberRef
-                            || c.kind == CXCursor_FieldDecl))
+                    if ((searcher::m_search_expressions
+                         && (c.kind == CXCursor_DeclRefExpr
+                             || c.kind == CXCursor_MemberRefExpr
+                             || c.kind == CXCursor_MemberRef
+                             || c.kind == CXCursor_FieldDecl))
+                        || (searcher::m_search_for_parameter_declaration
+                            && c.kind == CXCursor_ParmDecl))
                     {
                       // Update pos and count so that the entire line of code is
                       // printed instead of just the reference (e.g., variable

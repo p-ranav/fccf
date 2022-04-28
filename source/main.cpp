@@ -102,6 +102,11 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--parameter-declaration")
+      .help("Search for function or method parameter")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--typedef")
       .help("Search for typedef declaration")
       .default_value(false)
@@ -179,6 +184,8 @@ int main(int argc, char* argv[])
   auto search_expressions = program.get<bool>("--include-expressions");
   auto search_for_variable_declaration =
       program.get<bool>("--variable-declaration");
+  auto m_search_for_parameter_declaration =
+      program.get<bool>("--parameter-declaration");
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -186,13 +193,14 @@ int main(int argc, char* argv[])
   auto ignore_single_line_results =
       program.get<bool>("--ignore-single-line-results");
 
-  auto no_filter =
-      !(search_for_enum || search_for_struct || search_for_union
-        || search_for_member_function || search_for_function
-        || search_for_function_template || search_for_any_function
-        || search_for_class || search_for_class_template
-        || search_for_class_constructor || search_for_typedef
-        || search_for_using_declaration || search_for_namespace_alias);
+  auto no_filter = !(
+      search_for_enum || search_for_struct || search_for_union
+      || search_for_member_function || search_for_function
+      || search_for_function_template || search_for_any_function
+      || search_for_class || search_for_class_template
+      || search_for_class_constructor || search_for_typedef
+      || search_for_using_declaration || search_for_namespace_alias
+      || search_for_variable_declaration || m_search_for_parameter_declaration);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -262,6 +270,8 @@ int main(int argc, char* argv[])
       no_filter || search_for_namespace_alias;
   searcher.m_search_for_variable_declaration =
       no_filter || search_for_variable_declaration;
+  searcher.m_search_for_parameter_declaration =
+      no_filter || m_search_for_parameter_declaration;
   searcher.m_search_expressions = search_expressions;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
