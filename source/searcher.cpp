@@ -133,7 +133,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       && c.kind == CXCursor_ClassTemplate)
                   || (searcher::m_search_for_class_constructor
                       && c.kind == CXCursor_Constructor)
-                  || (searcher::m_search_for_class_constructor
+                  || (searcher::m_search_for_typedef
                       && c.kind == CXCursor_TypedefDecl)
                   || (searcher::m_search_for_using_declaration
                       && (c.kind == CXCursor_UsingDirective
