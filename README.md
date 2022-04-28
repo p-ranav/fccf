@@ -95,7 +95,7 @@ Optional arguments:
 
 ## How it works
 
-1. `fccf` does a recursive directory search for a needle in a haystack - like `grep` or `ripgrep` - It uses an `SSE2` `strstr` SIMD algorthim (modified Rabin-Karp SIMD search; see [here](http://0x80.pl/articles/simd-strfind.html)) if possible to quickly find, in multiple threads, a subset of the source files in the directory that contain a needle.
+1. `fccf` does a recursive directory search for a needle in a haystack - like `grep` or `ripgrep` - It uses an `SSE2` `strstr` SIMD algorithm (modified Rabin-Karp SIMD search; see [here](http://0x80.pl/articles/simd-strfind.html)) if possible to quickly find, in multiple threads, a subset of the source files in the directory that contain a needle.
 2. For each candidate source file, it uses `libclang` to parse the translation unit (build an abstract syntax tree).
 3. Then it visits each child node in the AST, looking for specific node types, e.g., `CXCursor_FunctionDecl` for function declarations.
 4. Once the relevant nodes are identified, if the node's "spelling" (`libclang` name for the node) matches the search query, then the source range of the AST node is identified - source range is the start and end index of the snippet of code in the buffer

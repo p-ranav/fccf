@@ -11,6 +11,8 @@
 #include <unistd.h>
 namespace fs = std::filesystem;
 
+using Searcher = search::searcher;
+
 int main(int argc, char* argv[])
 {
   const auto is_stdout = isatty(STDOUT_FILENO) == 1;
@@ -102,6 +104,16 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--using-declaration")
+      .help("Search for using declaration")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--namespace-alias")
+      .help("Search for namespace alias")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--verbose")
       .help("Request verbose output")
       .default_value(false)
@@ -155,6 +167,8 @@ int main(int argc, char* argv[])
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
   auto search_for_any_class_or_struct = program.get<bool>("-C");
   auto search_for_typedef = program.get<bool>("--typedef");
+  auto search_for_using_declaration = program.get<bool>("--using-declaration");
+  auto search_for_namespace_alias = program.get<bool>("--namespace-alias");
   auto search_expressions = program.get<bool>("--include-expressions");
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
@@ -167,7 +181,10 @@ int main(int argc, char* argv[])
                      || search_for_member_function || search_for_function
                      || search_for_function_template || search_for_any_function
                      || search_for_class || search_for_class_template
-                     || search_for_class_constructor);
+                     || search_for_class_constructor
+                     || search_for_typedef
+                     || search_for_using_declaration
+                     || search_for_namespace_alias);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -231,6 +248,10 @@ int main(int argc, char* argv[])
   searcher.m_search_for_class_constructor =
       no_filter || search_for_class_constructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
+  searcher.m_search_for_using_declaration =
+      no_filter || search_for_using_declaration;
+  searcher.m_search_for_namespace_alias =
+      no_filter || search_for_namespace_alias;
   searcher.m_search_expressions = search_expressions;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);

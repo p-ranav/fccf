@@ -43,6 +43,8 @@ struct searcher
   static inline bool m_search_for_class_template;
   static inline bool m_search_for_class_constructor;
   static inline bool m_search_for_typedef;
+  static inline bool m_search_for_using_declaration;
+  static inline bool m_search_for_namespace_alias;
   static inline bool m_ignore_single_line_results;
   static inline bool m_search_expressions;
 

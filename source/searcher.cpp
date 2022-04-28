@@ -134,6 +134,11 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       && c.kind == CXCursor_Constructor)
                   || (searcher::m_search_for_class_constructor
                       && c.kind == CXCursor_TypedefDecl)
+                  || (searcher::m_search_for_using_declaration
+                      && (c.kind == CXCursor_UsingDirective  || 
+                          c.kind == CXCursor_UsingDeclaration))
+                  || (searcher::m_search_for_namespace_alias
+                      && c.kind == CXCursor_NamespaceAlias)
                   ||
                   // Lambda function
                   // TODO: Check if there is a better way
