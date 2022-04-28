@@ -27,6 +27,14 @@ Note that search results here include:
 
 https://user-images.githubusercontent.com/8450091/165402206-65d9ed43-b9dd-4528-92bd-0b4ce76b6468.mp4
 
+## Search for any of `--flag` that matches
+  
+Provide an empty query to match any `--flag`, e.g., any enum declaration.
+  
+<img width="697" alt="image" src="https://user-images.githubusercontent.com/8450091/165854416-bc3e0cd1-042b-4f8c-b653-dd43ecae1e3a.png">
+
+... or any 
+
 ## Searching expressions
 
 Use the `--include-expressions` option to find expressions that match the query.
@@ -50,10 +58,6 @@ Use the `--using-declaration` option to find `using` declarations, `using` direc
 Use the `--namespace-alias` option to find `namespace` aliases.
 
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/8450091/165815204-bfe3f900-82cd-4411-acc5-0f1b63ec926e.png">
-
-## Pipe to another application for coloring
-
-<img width="675" alt="image" src="https://user-images.githubusercontent.com/8450091/165818125-7b59d1aa-56d3-4879-9a88-41fa71937798.png">
 
 ## Build Instructions
 
