@@ -92,3 +92,15 @@ Optional arguments:
 -l --language                           Language option used by clang [default: "c++"]
 --std                                   C++ standard to be used by clang [default: "c++17"]
 ```
+
+## How it works
+
+1. `fccf` does a recursive directory search for a needle in a haystack - like `grep` or `ripgrep` - It uses an `SSE2` `strstr` SIMD algorthim (modified Rabin-Karp SIMD search; see [here](http://0x80.pl/articles/simd-strfind.html)) if possible to quickly find, in multiple threads, a subset of the source files in the directory that contain a needle.
+2. For each candidate source file, it uses `libclang` to parse the translation unit (build an abstract syntax tree).
+3. Then it visits each child node in the AST, looking for specific node types, e.g., `CXCursor_FunctionDecl` for function declarations.
+4. Once the relevant nodes are identified, if the node's "spelling" (`libclang` name for the node) matches the search query, then the source range of the AST node is identified - source range is the start and end index of the snippet of code in the buffer
+5. Then, it pretty-prints this snippet of code. I have a simple lexer that tokenizes this code and prints colored output.
+
+For all this to work, fccf first identifies candidate directories that contain header files, e.g., paths that end with `include/`. It then adds these paths to the clang options (before parsing the translation unit) as `-Ifoo -Ibar/baz` etc. Additionally, for each translation unit, the parent and grandparent paths are also added to the include directories for that unit in order to increase the likelihood of successful parsing.
+
+Additional include directories can also be provided to `fccf` using the `-I` or `--include-dir` option. Using verbose output (`--verbose`), errors in the libclang parsing can be identified and fixes can be attempted (e.g., adding the right include directories so that `libclang` is happy).
