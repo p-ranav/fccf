@@ -11,8 +11,6 @@
 #include <unistd.h>
 namespace fs = std::filesystem;
 
-using Searcher = search::searcher;
-
 int main(int argc, char* argv[])
 {
   const auto is_stdout = isatty(STDOUT_FILENO) == 1;
@@ -105,7 +103,7 @@ int main(int argc, char* argv[])
       .implicit_value(true);
 
   program.add_argument("--using-declaration")
-      .help("Search for using declaration")
+      .help("Search for using declarations, using directives, and type alias declarations")
       .default_value(false)
       .implicit_value(true);
 
