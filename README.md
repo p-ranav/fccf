@@ -33,23 +33,27 @@ Use the `--include-expressions` option to find expressions that match the query.
 
 The following example shows `fccf` find calls to `isdigit()`.
 
-<img width="894" alt="image" src="https://user-images.githubusercontent.com/8450091/165769520-8c640847-280e-4d7d-8c6a-ce2cc108cdaf.png">
+<img width="700" alt="image" src="https://user-images.githubusercontent.com/8450091/165769520-8c640847-280e-4d7d-8c6a-ce2cc108cdaf.png">
 
 The following example shows `fccf` finding references to the `clang_options` variable.
 
-<img width="714" alt="image" src="https://user-images.githubusercontent.com/8450091/165769421-6d6141ff-0f00-45f6-9396-92a56abbd308.png">
+<img width="575" alt="image" src="https://user-images.githubusercontent.com/8450091/165769421-6d6141ff-0f00-45f6-9396-92a56abbd308.png">
 
 ## Searching for `using` declarations
 
 Use the `--using-declaration` option to find `using` declarations, `using` directives, and type alias declarations.
 
-<img width="999" alt="image" src="https://user-images.githubusercontent.com/8450091/165815095-cce0d7c1-3568-4a1b-b5f1-427e163fa81b.png">
+<img width="750" alt="image" src="https://user-images.githubusercontent.com/8450091/165815095-cce0d7c1-3568-4a1b-b5f1-427e163fa81b.png">
 
 ## Searching for `namespace` aliases
 
 Use the `--namespace-alias` option to find `namespace` aliases.
 
-<img width="543" alt="image" src="https://user-images.githubusercontent.com/8450091/165815204-bfe3f900-82cd-4411-acc5-0f1b63ec926e.png">
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/8450091/165815204-bfe3f900-82cd-4411-acc5-0f1b63ec926e.png">
+
+## Pipe to another application for coloring
+
+<img width="675" alt="image" src="https://user-images.githubusercontent.com/8450091/165818125-7b59d1aa-56d3-4879-9a88-41fa71937798.png">
 
 ## Build Instructions
 
