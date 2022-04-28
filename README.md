@@ -33,7 +33,9 @@ Provide an empty query to match any `--flag`, e.g., any enum declaration.
   
 <img width="697" alt="image" src="https://user-images.githubusercontent.com/8450091/165854416-bc3e0cd1-042b-4f8c-b653-dd43ecae1e3a.png">
 
-... or any 
+... or any class constructor
+
+<img width="694" alt="image" src="https://user-images.githubusercontent.com/8450091/165858122-ecfaf103-8e84-418f-8aaa-8f0fc1d087ea.png">
 
 ## Searching expressions
 
