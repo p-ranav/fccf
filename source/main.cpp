@@ -92,8 +92,13 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--isl", "--ignore-single-line-results")
-      .help("Ignore forward declarations, member function declarations, etc.")
+  program.add_argument("-C")
+      .help("Search for any class or class template or struct")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--namespace-alias")
+      .help("Search for namespace alias")
       .default_value(false)
       .implicit_value(true);
 
@@ -109,25 +114,20 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--namespace-alias")
-      .help("Search for namespace alias")
-      .default_value(false)
-      .implicit_value(true);
-
   program.add_argument("--verbose")
       .help("Request verbose output")
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("-C")
-      .help("Search for any class or class template or struct")
+  program.add_argument("--ie", "--include-expressions")
+      .help(
+          "Search for expressions that refer to some value or "
+          "member, e.g., function, variable, or enumerator.")
       .default_value(false)
       .implicit_value(true);
 
-  program.add_argument("--ie", "--include-expressions")
-      .help(
-          "Search for expressions that refer to some value or class/struct "
-          "member, e.g., function, variable, or enumerator.")
+  program.add_argument("--isl", "--ignore-single-line-results")
+      .help("Ignore forward declarations, member function declarations, etc.")
       .default_value(false)
       .implicit_value(true);
 
