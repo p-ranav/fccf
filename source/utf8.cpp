@@ -11,8 +11,9 @@
   with these routines reserved for higher performance on data known to be
   valid.
 */
-#include <stdarg.h>
 #include <cstdio>
+
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #if _WIN32

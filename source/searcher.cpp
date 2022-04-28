@@ -110,12 +110,13 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               auto filename = args->filename;
               auto haystack = args->haystack;
 
-              if ((searcher::m_search_expressions && 
-                      (c.kind == CXCursor_DeclRefExpr || 
-                       c.kind == CXCursor_MemberRefExpr ||
-                       c.kind == CXCursor_MemberRef ||
-                       c.kind == CXCursor_FieldDecl)) || 
-                  (searcher::m_search_for_enum && c.kind == CXCursor_EnumDecl)
+              if ((searcher::m_search_expressions
+                   && (c.kind == CXCursor_DeclRefExpr
+                       || c.kind == CXCursor_MemberRefExpr
+                       || c.kind == CXCursor_MemberRef
+                       || c.kind == CXCursor_FieldDecl))
+                  || (searcher::m_search_for_enum
+                      && c.kind == CXCursor_EnumDecl)
                   || (searcher::m_search_for_struct
                       && c.kind == CXCursor_StructDecl)
                   || (searcher::m_search_for_union
@@ -135,9 +136,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   || (searcher::m_search_for_class_constructor
                       && c.kind == CXCursor_TypedefDecl)
                   || (searcher::m_search_for_using_declaration
-                      && (c.kind == CXCursor_UsingDirective  || 
-                          c.kind == CXCursor_UsingDeclaration ||
-                          c.kind == CXCursor_TypeAliasDecl))
+                      && (c.kind == CXCursor_UsingDirective
+                          || c.kind == CXCursor_UsingDeclaration
+                          || c.kind == CXCursor_TypeAliasDecl))
                   || (searcher::m_search_for_namespace_alias
                       && c.kind == CXCursor_NamespaceAlias)
                   ||
@@ -173,12 +174,13 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       (const char*)clang_getCursorSpelling(c).data;
                   std::string_view query = searcher::m_query.data();
 
-                  if ((searcher::m_exact_match && name == query && 
-                       c.kind != CXCursor_DeclRefExpr && 
-                       c.kind != CXCursor_MemberRefExpr &&
-                       c.kind != CXCursor_MemberRef && 
-                       c.kind != CXCursor_FieldDecl)
-                      || (!searcher::m_exact_match && name.find(query) != std::string_view::npos))
+                  if ((searcher::m_exact_match && name == query
+                       && c.kind != CXCursor_DeclRefExpr
+                       && c.kind != CXCursor_MemberRefExpr
+                       && c.kind != CXCursor_MemberRef
+                       && c.kind != CXCursor_FieldDecl)
+                      || (!searcher::m_exact_match
+                          && name.find(query) != std::string_view::npos))
                   {
                     auto haystack_size = haystack.size();
                     auto pos = source_range.begin_int_data - 2;
@@ -188,14 +190,19 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     // fmt::print("{} - Pos: {}, Count: {}, Haystack size:
                     // {}\n", filename, pos, count, haystack_size);
 
-                    if (searcher::m_search_expressions && 
-                        (c.kind == CXCursor_DeclRefExpr || c.kind == CXCursor_MemberRefExpr ||
-                         c.kind == CXCursor_MemberRef || c.kind == CXCursor_FieldDecl)) {
-                      // Update pos and count so that the entire line of code is printed
-                      // instead of just the reference (e.g., variable name)
+                    if (searcher::m_search_expressions
+                        && (c.kind == CXCursor_DeclRefExpr
+                            || c.kind == CXCursor_MemberRefExpr
+                            || c.kind == CXCursor_MemberRef
+                            || c.kind == CXCursor_FieldDecl))
+                    {
+                      // Update pos and count so that the entire line of code is
+                      // printed instead of just the reference (e.g., variable
+                      // name)
                       auto newline_before = haystack.rfind('\n', pos);
-                      while (haystack[newline_before + 1] == ' ' || 
-                             haystack[newline_before + 1] == '\t') {
+                      while (haystack[newline_before + 1] == ' '
+                             || haystack[newline_before + 1] == '\t')
+                      {
                         newline_before += 1;
                       }
                       auto newline_after = haystack.find('\n', pos);

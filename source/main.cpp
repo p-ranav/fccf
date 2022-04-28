@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   const auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
-  argparse::ArgumentParser program("search", "0.2.0\n");
+  argparse::ArgumentParser program("search", "0.3.0");
   program.add_argument("query");
   program.add_argument("path");
 
@@ -103,7 +103,9 @@ int main(int argc, char* argv[])
       .implicit_value(true);
 
   program.add_argument("--using-declaration")
-      .help("Search for using declarations, using directives, and type alias declarations")
+      .help(
+          "Search for using declarations, using directives, and type alias "
+          "declarations")
       .default_value(false)
       .implicit_value(true);
 
@@ -123,7 +125,9 @@ int main(int argc, char* argv[])
       .implicit_value(true);
 
   program.add_argument("--ie", "--include-expressions")
-      .help("Search for expressions that refer to some value or class/struct member, e.g., function, variable, or enumerator.")
+      .help(
+          "Search for expressions that refer to some value or class/struct "
+          "member, e.g., function, variable, or enumerator.")
       .default_value(false)
       .implicit_value(true);
 
@@ -175,14 +179,13 @@ int main(int argc, char* argv[])
   auto ignore_single_line_results =
       program.get<bool>("--ignore-single-line-results");
 
-  auto no_filter = !(search_for_enum || search_for_struct || search_for_union
-                     || search_for_member_function || search_for_function
-                     || search_for_function_template || search_for_any_function
-                     || search_for_class || search_for_class_template
-                     || search_for_class_constructor
-                     || search_for_typedef
-                     || search_for_using_declaration
-                     || search_for_namespace_alias);
+  auto no_filter =
+      !(search_for_enum || search_for_struct || search_for_union
+        || search_for_member_function || search_for_function
+        || search_for_function_template || search_for_any_function
+        || search_for_class || search_for_class_template
+        || search_for_class_constructor || search_for_typedef
+        || search_for_using_declaration || search_for_namespace_alias);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
