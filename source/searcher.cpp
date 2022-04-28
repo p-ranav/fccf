@@ -193,9 +193,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                          && (c.kind == CXCursor_DeclRefExpr
                              || c.kind == CXCursor_MemberRefExpr
                              || c.kind == CXCursor_MemberRef
-                             || c.kind == CXCursor_FieldDecl))
-                        || (searcher::m_search_for_parameter_declaration
-                            && c.kind == CXCursor_ParmDecl))
+                             || c.kind == CXCursor_FieldDecl)))
                     {
                       // Update pos and count so that the entire line of code is
                       // printed instead of just the reference (e.g., variable
