@@ -109,6 +109,7 @@ Optional arguments:
 --class-constructor                     Search for class constructor declaration [default: false]
 -C                                      Search for any class or class template or struct [default: false]
 --namespace-alias                       Search for namespace alias [default: false]
+--parameter-declaration                 Search for function or method parameter [default: false]
 --typedef                               Search for typedef declaration [default: false]
 --using-declaration                     Search for using declarations, using directives, and type alias declarations [default: false]
 --variable-declaration                  Search for variable declaration [default: false]
