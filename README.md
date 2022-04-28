@@ -85,7 +85,7 @@ sudo cmake --install build
 ## `fccf` Usage
 
 ```console
-~/dev/fccf$ fccf --help
+foo@bar:~$ fccf --help
 Usage: fccf [options] query path
 
 Positional arguments:
@@ -131,6 +131,46 @@ Optional arguments:
 4. Once the relevant nodes are identified, if the node's "spelling" (`libclang` name for the node) matches the search query, then the source range of the AST node is identified - source range is the start and end index of the snippet of code in the buffer
 5. Then, it pretty-prints this snippet of code. I have a simple lexer that tokenizes this code and prints colored output.
 
+### Note on `include_directories`
+
 For all this to work, fccf first identifies candidate directories that contain header files, e.g., paths that end with `include/`. It then adds these paths to the clang options (before parsing the translation unit) as `-Ifoo -Ibar/baz` etc. Additionally, for each translation unit, the parent and grandparent paths are also added to the include directories for that unit in order to increase the likelihood of successful parsing.
 
 Additional include directories can also be provided to `fccf` using the `-I` or `--include-dir` option. Using verbose output (`--verbose`), errors in the libclang parsing can be identified and fixes can be attempted (e.g., adding the right include directories so that `libclang` is happy).
+
+To run `fccf` on the `fccf` source code without any libclang errors, I had to explicitly provide the include path from LLVM-12 like so:
+
+```console
+foo@bar:~$ fccf --verbose 'lexer' . --include-dir /usr/lib/llvm-12/include/
+Checking ./source/lexer.cpp
+Checking ./source/lexer.hpp
+Checking ./source/searcher.cpp
+
+// ./source/lexer.hpp (Line: 14 to 40)
+class lexer
+{
+  std::string_view m_input;
+  fmt::memory_buffer* m_out;
+  std::size_t m_index {0};
+  bool m_is_stdout {true};
+
+  char previous() const;
+  char current() const;
+  char next() const;
+  void move_forward(std::size_t n = 1);
+  bool is_line_comment();
+  bool is_block_comment();
+  bool is_start_of_identifier();
+  bool is_start_of_string();
+  bool is_start_of_number();
+  void process_line_comment();
+  void process_block_comment();
+  bool process_identifier(bool maybe_class_or_struct = false);
+  void process_string();
+  std::size_t get_number_of_characters(std::string_view str);
+
+public:
+  void tokenize_and_pretty_print(std::string_view source,
+                                 fmt::memory_buffer* out,
+                                 bool is_stdout = true);
+}
+```
