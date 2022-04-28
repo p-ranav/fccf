@@ -27,6 +27,14 @@ Note that search results here include:
 
 https://user-images.githubusercontent.com/8450091/165402206-65d9ed43-b9dd-4528-92bd-0b4ce76b6468.mp4
 
+## Searching expressions
+
+Use the `--include-expressions` option to find expressions that match the query
+
+<img width="895" alt="image" src="https://user-images.githubusercontent.com/8450091/165763755-af0f37e2-da98-4991-9806-a90199c7a8cd.png">
+
+<img width="744" alt="image" src="https://user-images.githubusercontent.com/8450091/165763662-80256fcf-676a-4ec7-ad86-a92cb769dc82.png">
+
 ## Build Instructions
 
 Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com/p-ranav/fccf/blob/master/BUILDING.md).
