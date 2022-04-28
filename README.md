@@ -85,6 +85,8 @@ Optional arguments:
 --class-constructor                     Search for class constructor declaration [default: false]
 --isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
 --typedef                               Search for typedef declaration [default: false]
+--using-declaration                     Search for using declarations, using directives, and type alias declarations [default: false]
+--namespace-alias                       Search for namespace alias [default: false]
 --verbose                               Request verbose output [default: false]
 -C                                      Search for any class or class template or struct [default: false]
 --ie --include-expressions              Search for expressions that refer to some value or class/struct member, e.g., function, variable, or enumerator. [default: false]
