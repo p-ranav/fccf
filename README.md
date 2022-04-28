@@ -29,9 +29,13 @@ https://user-images.githubusercontent.com/8450091/165402206-65d9ed43-b9dd-4528-9
 
 ## Searching expressions
 
-Use the `--include-expressions` option to find expressions that match the query
+Use the `--include-expressions` option to find expressions that match the query.
+
+The following example shows `fccf` find calls to `isdigit()`.
 
 <img width="894" alt="image" src="https://user-images.githubusercontent.com/8450091/165769520-8c640847-280e-4d7d-8c6a-ce2cc108cdaf.png">
+
+The following example shows `fccf` finding references to the `clang_options` variable.
 
 <img width="714" alt="image" src="https://user-images.githubusercontent.com/8450091/165769421-6d6141ff-0f00-45f6-9396-92a56abbd308.png">
 
