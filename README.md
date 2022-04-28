@@ -56,11 +56,10 @@ cmake --build build
 sudo cmake --install build
 ```
 
-## `fccf` Arguments
+## `fccf` Usage
 
 ```console
 ~/dev/fccf$ fccf --help
-1 argument(s) expected. 0 provided.
 Usage: search [options] query path
 
 Positional arguments:
@@ -88,6 +87,7 @@ Optional arguments:
 --typedef                               Search for typedef declaration [default: false]
 --verbose                               Request verbose output [default: false]
 -C                                      Search for any class or class template or struct [default: false]
+--ie --include-expressions              Search for expressions that refer to some value or class/struct member, e.g., function, variable, or enumerator. [default: false]
 -I --include-dir                        Additional include directories [default: {}]
 -l --language                           Language option used by clang [default: "c++"]
 --std                                   C++ standard to be used by clang [default: "c++17"]
