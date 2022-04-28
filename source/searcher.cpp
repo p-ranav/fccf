@@ -237,8 +237,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       }
 
                       lexer lex;
-                      lex.tokenize_and_pretty_print(haystack.substr(pos, count),
-                                                    &out);
+                      lex.tokenize_and_pretty_print(
+                          haystack.substr(pos, count), &out, m_is_stdout);
                       fmt::format_to(std::back_inserter(out), "\n");
                       fmt::print("{}", fmt::to_string(out));
                     }

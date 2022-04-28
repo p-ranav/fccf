@@ -76,8 +76,12 @@ bool lexer::is_start_of_number()
 void lexer::process_line_comment()
 {
   while (m_index < m_input.size()) {
-    fmt::format_to(
-        std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+    if (m_is_stdout) {
+      fmt::format_to(
+          std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+    } else {
+      fmt::format_to(std::back_inserter(*m_out), "{}", current());
+    }
     move_forward();
     if (current() == '\n' && previous() != '\\') {
       break;
@@ -91,22 +95,38 @@ void lexer::process_block_comment()
   while (m_index < m_input.size()) {
     if (current() == '/' && next() == '*') {
       ++level;
-      fmt::format_to(std::back_inserter(*m_out), "\033[0;90m/*\033[0m");
+      if (m_is_stdout) {
+        fmt::format_to(std::back_inserter(*m_out), "\033[0;90m/*\033[0m");
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "/*");
+      }
       move_forward(2);
     } else if (current() == '*' && next() == '/') {
       --level;
-      fmt::format_to(std::back_inserter(*m_out), "\033[0;90m*/\033[0m");
+      if (m_is_stdout) {
+        fmt::format_to(std::back_inserter(*m_out), "\033[0;90m*/\033[0m");
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "*/");
+      }
       move_forward(2);
       if (level == 0) {
         break;
       }
     } else if (previous() != '\\' && current() == '\n') {
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", current());
+      }
       move_forward();
     } else {
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[0;90m{}\033[0m", current());
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", current());
+      }
       move_forward();
     }
   }
@@ -241,34 +261,63 @@ bool lexer::process_identifier(bool maybe_class_or_struct)
   if (keywords.find(identifier) != keywords.end()) {
     // Keyword
     // Color it Purple
-    fmt::format_to(
-        std::back_inserter(*m_out), "\033[1;95m{}\033[0m", identifier);
+    if (m_is_stdout) {
+      fmt::format_to(
+          std::back_inserter(*m_out), "\033[1;95m{}\033[0m", identifier);
+    } else {
+      fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+    }
+
   } else if (types.find(identifier) != types.end()) {
     // Type
     // Color it Blue
-    fmt::format_to(
-        std::back_inserter(*m_out), "\033[1;94m{}\033[0m", identifier);
+    if (m_is_stdout) {
+      fmt::format_to(
+          std::back_inserter(*m_out), "\033[1;94m{}\033[0m", identifier);
+    } else {
+      fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+    }
+
   } else {
     if (current() == ':') {
       // Label
       // COlor it green
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[1;92m{}\033[0m", identifier);
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[1;92m{}\033[0m", identifier);
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+      }
+
     } else if (current() == '.') {
       // Member
       // Color it cyan
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[1;96m{}\033[0m", identifier);
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[1;96m{}\033[0m", identifier);
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+      }
+
     } else if (current() == '(') {
       // Function
       // Color it yellow
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[1;93m{}\033[0m", identifier);
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[1;93m{}\033[0m", identifier);
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+      }
+
     } else if (maybe_class_or_struct) {
       // Class or Struct name
       // Color it Blue
-      fmt::format_to(
-          std::back_inserter(*m_out), "\033[1;94m{}\033[0m", identifier);
+      if (m_is_stdout) {
+        fmt::format_to(
+            std::back_inserter(*m_out), "\033[1;94m{}\033[0m", identifier);
+      } else {
+        fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
+      }
     } else {
       // Identifier
       fmt::format_to(std::back_inserter(*m_out), "{}", identifier);
@@ -306,7 +355,11 @@ void lexer::process_string()
 
   auto end = m_index;
   std::string_view literal(m_input.data() + start, end - start);
-  fmt::format_to(std::back_inserter(*m_out), "\033[1;91m{}\033[0m", literal);
+  if (m_is_stdout) {
+    fmt::format_to(std::back_inserter(*m_out), "\033[1;91m{}\033[0m", literal);
+  } else {
+    fmt::format_to(std::back_inserter(*m_out), "{}", literal);
+  }
 }
 
 std::size_t lexer::get_number_of_characters(std::string_view str)
@@ -322,8 +375,10 @@ std::size_t lexer::get_number_of_characters(std::string_view str)
 }
 
 void lexer::tokenize_and_pretty_print(std::string_view input,
-                                      fmt::memory_buffer* out)
+                                      fmt::memory_buffer* out,
+                                      bool is_stdout)
 {
+  m_is_stdout = is_stdout;
   bool class_or_struct_keyword_encountered = false;
 
   if (!input.empty()) {
