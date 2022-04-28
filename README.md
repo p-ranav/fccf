@@ -84,7 +84,7 @@ sudo cmake --install build
 
 ```console
 ~/dev/fccf$ fccf --help
-Usage: search [options] query path
+Usage: fccf [options] query path
 
 Positional arguments:
 query
@@ -107,13 +107,14 @@ Optional arguments:
 --class                                 Search for class declaration [default: false]
 --class-template                        Search for class template declaration [default: false]
 --class-constructor                     Search for class constructor declaration [default: false]
---isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
+-C                                      Search for any class or class template or struct [default: false]
+--namespace-alias                       Search for namespace alias [default: false]
 --typedef                               Search for typedef declaration [default: false]
 --using-declaration                     Search for using declarations, using directives, and type alias declarations [default: false]
---namespace-alias                       Search for namespace alias [default: false]
+--variable-declaration                  Search for variable declaration [default: false]
 --verbose                               Request verbose output [default: false]
--C                                      Search for any class or class template or struct [default: false]
---ie --include-expressions              Search for expressions that refer to some value or class/struct member, e.g., function, variable, or enumerator. [default: false]
+--ie --include-expressions              Search for expressions that refer to some value or member, e.g., function, variable, or enumerator. [default: false]
+--isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
 -I --include-dir                        Additional include directories [default: {}]
 -l --language                           Language option used by clang [default: "c++"]
 --std                                   C++ standard to be used by clang [default: "c++17"]
