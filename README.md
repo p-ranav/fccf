@@ -35,6 +35,18 @@ Use the `--include-expressions` option to find expressions that match the query
 
 <img width="714" alt="image" src="https://user-images.githubusercontent.com/8450091/165769421-6d6141ff-0f00-45f6-9396-92a56abbd308.png">
 
+## Searching for `using` declarations
+
+Use the `--using-declaration` option to find `using` declarations, `using` directives, and type alias declarations.
+
+<img width="999" alt="image" src="https://user-images.githubusercontent.com/8450091/165815095-cce0d7c1-3568-4a1b-b5f1-427e163fa81b.png">
+
+## Searching for `namespace` aliases
+
+Use the `--namespace-alias` option to find `namespace` aliases.
+
+<img width="543" alt="image" src="https://user-images.githubusercontent.com/8450091/165815204-bfe3f900-82cd-4411-acc5-0f1b63ec926e.png">
+
 ## Build Instructions
 
 Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com/p-ranav/fccf/blob/master/BUILDING.md).
