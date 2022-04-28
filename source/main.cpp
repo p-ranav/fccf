@@ -114,6 +114,11 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--variable-declaration")
+      .help("Search for variable declaration")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--verbose")
       .help("Request verbose output")
       .default_value(false)
@@ -172,6 +177,8 @@ int main(int argc, char* argv[])
   auto search_for_using_declaration = program.get<bool>("--using-declaration");
   auto search_for_namespace_alias = program.get<bool>("--namespace-alias");
   auto search_expressions = program.get<bool>("--include-expressions");
+  auto search_for_variable_declaration =
+      program.get<bool>("--variable-declaration");
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -253,6 +260,8 @@ int main(int argc, char* argv[])
       no_filter || search_for_using_declaration;
   searcher.m_search_for_namespace_alias =
       no_filter || search_for_namespace_alias;
+  searcher.m_search_for_variable_declaration =
+      no_filter || search_for_variable_declaration;
   searcher.m_search_expressions = search_expressions;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);

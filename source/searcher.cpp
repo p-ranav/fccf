@@ -141,12 +141,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                           || c.kind == CXCursor_TypeAliasDecl))
                   || (searcher::m_search_for_namespace_alias
                       && c.kind == CXCursor_NamespaceAlias)
-                  ||
-                  // Lambda function
-                  // TODO: Check if there is a better way
-                  // than searching every variable declaration
-                  (searcher::m_search_for_function
-                   && c.kind == CXCursor_VarDecl))
+                  || (searcher::m_search_for_variable_declaration
+                      && c.kind == CXCursor_VarDecl))
               {
                 // fmt::print("Found something in {}\n", filename);
 
@@ -174,11 +170,12 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                       (const char*)clang_getCursorSpelling(c).data;
                   std::string_view query = searcher::m_query.data();
 
-                  if ((searcher::m_exact_match && name == query
-                       && c.kind != CXCursor_DeclRefExpr
-                       && c.kind != CXCursor_MemberRefExpr
-                       && c.kind != CXCursor_MemberRef
-                       && c.kind != CXCursor_FieldDecl)
+                  if (query.empty()
+                      || (searcher::m_exact_match && name == query
+                          && c.kind != CXCursor_DeclRefExpr
+                          && c.kind != CXCursor_MemberRefExpr
+                          && c.kind != CXCursor_MemberRef
+                          && c.kind != CXCursor_FieldDecl)
                       || (!searcher::m_exact_match
                           && name.find(query) != std::string_view::npos))
                   {
