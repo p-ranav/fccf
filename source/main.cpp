@@ -92,6 +92,11 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--class-destructor")
+      .help("Search for class destructor declaration")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("-C")
       .help("Search for any class or class template or struct")
       .default_value(false)
@@ -177,6 +182,7 @@ int main(int argc, char* argv[])
   auto search_for_class = program.get<bool>("--class");
   auto search_for_class_template = program.get<bool>("--class-template");
   auto search_for_class_constructor = program.get<bool>("--class-constructor");
+  auto search_for_class_destructor = program.get<bool>("--class-destructor");
   auto search_for_any_class_or_struct = program.get<bool>("-C");
   auto search_for_typedef = program.get<bool>("--typedef");
   auto search_for_using_declaration = program.get<bool>("--using-declaration");
@@ -193,14 +199,15 @@ int main(int argc, char* argv[])
   auto ignore_single_line_results =
       program.get<bool>("--ignore-single-line-results");
 
-  auto no_filter = !(
-      search_for_enum || search_for_struct || search_for_union
-      || search_for_member_function || search_for_function
-      || search_for_function_template || search_for_any_function
-      || search_for_class || search_for_class_template
-      || search_for_class_constructor || search_for_typedef
-      || search_for_using_declaration || search_for_namespace_alias
-      || search_for_variable_declaration || m_search_for_parameter_declaration);
+  auto no_filter =
+      !(search_for_enum || search_for_struct || search_for_union
+        || search_for_member_function || search_for_function
+        || search_for_function_template || search_for_any_function
+        || search_for_class || search_for_class_template
+        || search_for_class_constructor || search_for_class_destructor
+        || search_for_typedef || search_for_using_declaration
+        || search_for_namespace_alias || search_for_variable_declaration
+        || m_search_for_parameter_declaration);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -263,6 +270,8 @@ int main(int argc, char* argv[])
       no_filter || search_for_any_class_or_struct || search_for_class_template;
   searcher.m_search_for_class_constructor =
       no_filter || search_for_class_constructor;
+  searcher.m_search_for_class_destructor =
+      no_filter || search_for_class_destructor;
   searcher.m_search_for_typedef = no_filter || search_for_typedef;
   searcher.m_search_for_using_declaration =
       no_filter || search_for_using_declaration;
