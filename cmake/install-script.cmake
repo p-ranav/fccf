@@ -5,7 +5,7 @@ file(
 )
 
 get_filename_component(prefix "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
-set(config_dir "${prefix}/${fccf_INSTALL_CMAKEDIR}")
+set(config_dir "$ENV{DESTDIR}${prefix}/${fccf_INSTALL_CMAKEDIR}")
 set(config_file "${config_dir}/fccfConfig.cmake")
 
 message(STATUS "Installing: ${config_file}")
