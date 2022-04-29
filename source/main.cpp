@@ -102,6 +102,11 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--for-statement")
+      .help("Search for `for` statement")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--namespace-alias")
       .help("Search for namespace alias")
       .default_value(false)
@@ -238,6 +243,8 @@ int main(int argc, char* argv[])
 
   auto search_for_throw_expression = program.get<bool>("--throw-expression");
 
+  auto search_for_for_statement = program.get<bool>("--for-statement");
+
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -256,7 +263,8 @@ int main(int argc, char* argv[])
         || search_for_variable_declaration || search_for_parameter_declaration
         || search_for_static_cast || search_for_dynamic_cast
         || search_for_reinterpret_cast || search_for_const_cast
-        || search_for_any_cast || search_for_throw_expression);
+        || search_for_any_cast || search_for_throw_expression
+        || search_for_for_statement);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -342,6 +350,8 @@ int main(int argc, char* argv[])
 
   searcher.m_search_for_throw_expression =
       no_filter || search_for_throw_expression;
+
+  searcher.m_search_for_for_statement = no_filter || search_for_for_statement;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 

@@ -170,7 +170,10 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   || (searcher::m_search_for_const_cast
                       && c.kind == CXCursor_CXXConstCastExpr)
                   || (searcher::m_search_for_throw_expression
-                      && c.kind == CXCursor_CXXThrowExpr))
+                      && c.kind == CXCursor_CXXThrowExpr)
+                  || (searcher::m_search_for_for_statement
+                      && (c.kind == CXCursor_ForStmt
+                          || c.kind == CXCursor_CXXForRangeStmt)))
               {
                 // fmt::print("Found something in {}\n", filename);
 
@@ -209,7 +212,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                           || searcher::m_search_for_static_cast
                           || searcher::m_search_for_dynamic_cast
                           || searcher::m_search_for_reinterpret_cast
-                          || searcher::m_search_for_const_cast)
+                          || searcher::m_search_for_const_cast
+                          || searcher::m_search_for_for_statement)
                       || (searcher::m_exact_match && name == query
                           && c.kind != CXCursor_DeclRefExpr
                           && c.kind != CXCursor_MemberRefExpr
@@ -249,8 +253,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     if (pos < haystack_size) {
                       auto code_snippet = haystack.substr(pos, count);
 
-                      // Handle throw expression, static_cast,
-                      // dynamic_cast, const_cast, and reinterpret_cast
+                      // Handles throw expression, static_cast,
+                      // dynamic_cast, const_cast, reinterpret_cast
+                      // for_statement, and ranged_for_statement
                       //
                       // if the `query` is part of the code snippet,
                       // then show result, else, skip it
@@ -259,7 +264,8 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                           || searcher::m_search_for_static_cast
                           || searcher::m_search_for_dynamic_cast
                           || searcher::m_search_for_reinterpret_cast
-                          || searcher::m_search_for_const_cast)
+                          || searcher::m_search_for_const_cast
+                          || searcher::m_search_for_for_statement)
                       {
                         if (code_snippet.find(query) == std::string_view::npos)
                         {
