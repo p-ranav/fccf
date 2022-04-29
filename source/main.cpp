@@ -168,6 +168,11 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--throw-expression")
+      .help("Search for throw expression")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--isl", "--ignore-single-line-results")
       .help("Ignore forward declarations, member function declarations, etc.")
       .default_value(false)
@@ -231,6 +236,8 @@ int main(int argc, char* argv[])
   auto search_for_const_cast = program.get<bool>("--const-cast");
   auto search_for_any_cast = program.get<bool>("-c");
 
+  auto search_for_throw_expression = program.get<bool>("--throw-expression");
+
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -249,7 +256,7 @@ int main(int argc, char* argv[])
         || search_for_variable_declaration || search_for_parameter_declaration
         || search_for_static_cast || search_for_dynamic_cast
         || search_for_reinterpret_cast || search_for_const_cast
-        || search_for_any_cast);
+        || search_for_any_cast || search_for_throw_expression);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -332,6 +339,9 @@ int main(int argc, char* argv[])
       no_filter || search_for_any_cast || search_for_reinterpret_cast;
   searcher.m_search_for_const_cast =
       no_filter || search_for_any_cast || search_for_const_cast;
+
+  searcher.m_search_for_throw_expression =
+      no_filter || search_for_throw_expression;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 

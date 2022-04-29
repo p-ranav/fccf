@@ -168,7 +168,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   || (searcher::m_search_for_reinterpret_cast
                       && c.kind == CXCursor_CXXReinterpretCastExpr)
                   || (searcher::m_search_for_const_cast
-                      && c.kind == CXCursor_CXXConstCastExpr))
+                      && c.kind == CXCursor_CXXConstCastExpr)
+                  || (searcher::m_search_for_throw_expression
+                      && c.kind == CXCursor_CXXThrowExpr))
               {
                 // fmt::print("Found something in {}\n", filename);
 
@@ -197,6 +199,17 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   std::string_view query = searcher::m_query.data();
 
                   if (query.empty()
+                      || (
+                          // The query check for these is done
+                          // a little later down the road
+                          // (once a code snippet is available
+                          // to check against)
+                          searcher::m_search_for_throw_expression
+                          || searcher::m_search_for_typedef
+                          || searcher::m_search_for_static_cast
+                          || searcher::m_search_for_dynamic_cast
+                          || searcher::m_search_for_reinterpret_cast
+                          || searcher::m_search_for_const_cast)
                       || (searcher::m_exact_match && name == query
                           && c.kind != CXCursor_DeclRefExpr
                           && c.kind != CXCursor_MemberRefExpr
@@ -234,6 +247,27 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                     }
 
                     if (pos < haystack_size) {
+                      auto code_snippet = haystack.substr(pos, count);
+
+                      // Handle throw expression, static_cast,
+                      // dynamic_cast, const_cast, and reinterpret_cast
+                      //
+                      // if the `query` is part of the code snippet,
+                      // then show result, else, skip it
+                      if (searcher::m_search_for_throw_expression
+                          || searcher::m_search_for_typedef
+                          || searcher::m_search_for_static_cast
+                          || searcher::m_search_for_dynamic_cast
+                          || searcher::m_search_for_reinterpret_cast
+                          || searcher::m_search_for_const_cast)
+                      {
+                        if (code_snippet.find(query) == std::string_view::npos)
+                        {
+                          // skip result
+                          return CXChildVisit_Continue;
+                        }
+                      }
+
                       auto out = fmt::memory_buffer();
 
                       // Filename
@@ -261,7 +295,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
 
                       lexer lex;
                       lex.tokenize_and_pretty_print(
-                          haystack.substr(pos, count), &out, m_is_stdout);
+                          code_snippet, &out, m_is_stdout);
                       fmt::format_to(std::back_inserter(out), "\n");
                       fmt::print("{}", fmt::to_string(out));
                     }
