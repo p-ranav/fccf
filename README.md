@@ -37,6 +37,12 @@ Provide an empty query to match any `--flag`, e.g., any enum declaration.
 
 <img width="694" alt="image" src="https://user-images.githubusercontent.com/8450091/165858122-ecfaf103-8e84-418f-8aaa-8f0fc1d087ea.png">
 
+## Searching a `for` statement 
+
+Use `--for-statement` to search and find snippets of code that are `for` statements. `fccf` will try to find `for` statements (include C++ ranged `for`) for code snippets that contain the query string.
+
+<img width="694" alt="image" src="https://user-images.githubusercontent.com/8450091/165875203-0c30623f-b935-4dcd-b929-1053e0348d12.png">
+
 ## Searching expressions
 
 Use the `--include-expressions` option to find expressions that match the query.
