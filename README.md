@@ -198,3 +198,8 @@ public:
                                  bool is_stdout = true);
 }
 ```
+
+## References
+
+1. [SIMD-friendly algorithms for substring searching](http://0x80.pl/articles/simd-strfind.html)
+2. [libclang: C Interface to Clang](https://clang.llvm.org/doxygen/group__CINDEX.html)
