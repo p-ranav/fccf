@@ -123,6 +123,7 @@ Optional arguments:
 --reinterpret-cast                      Search for reinterpret_cast [default: false]
 --const-cast                            Search for const_cast [default: false]
 -c                                      Search for any static_cast, dynamic_cast, reinterpret_cast, orconst_cast expression [default: false]
+--throw-expression                      Search for throw expression [default: false]
 --isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
 -I --include-dir                        Additional include directories [default: {}]
 -l --language                           Language option used by clang [default: "c++"]
