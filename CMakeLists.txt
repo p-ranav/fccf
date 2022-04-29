@@ -4,7 +4,7 @@ include(cmake/prelude.cmake)
 
 project(
     fccf
-    VERSION 0.4.0
+    VERSION 0.5.0
     DESCRIPTION "fccf recursively searches a directory to find C/C++ source code matching a search string."
     HOMEPAGE_URL "https://github.com/p-ranav/fccf"
     LANGUAGES CXX
