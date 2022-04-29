@@ -121,6 +121,7 @@ Optional arguments:
 --class-constructor                     Search for class constructor declaration [default: false]
 --class-destructor                      Search for class destructor declaration [default: false]
 -C                                      Search for any class or class template or struct [default: false]
+--for-statement                         Search for `for` statement [default: false]
 --namespace-alias                       Search for namespace alias [default: false]
 --parameter-declaration                 Search for function or method parameter [default: false]
 --typedef                               Search for typedef declaration [default: false]
