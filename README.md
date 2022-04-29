@@ -61,6 +61,16 @@ Use the `--namespace-alias` option to find `namespace` aliases.
 
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/8450091/165815204-bfe3f900-82cd-4411-acc5-0f1b63ec926e.png">
 
+## Searching for `throw` expressions
+
+Use `--throw-expression` with a query to search for specific `throw` expressions that contain the query string.
+
+<img width="740" alt="image" src="https://user-images.githubusercontent.com/8450091/165873571-652d43d1-03be-4569-8329-2e481795f330.png">
+
+As presented earlier, an empty query here will attempt to match any `throw` expression in the code base:
+
+<img width="800" alt="image" src="https://user-images.githubusercontent.com/8450091/165873839-70730714-a7bc-46d8-8ea7-6be5438e374b.png">
+
 ## Build Instructions
 
 Build `fccf` using CMake. For more details, see [BUILDING.md](https://github.com/p-ranav/fccf/blob/master/BUILDING.md).
