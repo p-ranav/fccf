@@ -110,6 +110,20 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               auto filename = args->filename;
               auto haystack = args->haystack;
 
+              /*
+                CXCursor_CXXStaticCastExpr
+                C++'s static_cast<> expression.
+
+                CXCursor_CXXDynamicCastExpr
+                C++'s dynamic_cast<> expression.
+
+                CXCursor_CXXReinterpretCastExpr
+                C++'s reinterpret_cast<> expression.
+
+                CXCursor_CXXConstCastExpr
+                C++'s const_cast<> expression.
+              */
+
               if ((searcher::m_search_expressions
                    && (c.kind == CXCursor_DeclRefExpr
                        || c.kind == CXCursor_MemberRefExpr
@@ -146,7 +160,15 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                   || (searcher::m_search_for_variable_declaration
                       && c.kind == CXCursor_VarDecl)
                   || (searcher::m_search_for_parameter_declaration
-                      && c.kind == CXCursor_ParmDecl))
+                      && c.kind == CXCursor_ParmDecl)
+                  || (searcher::m_search_for_static_cast
+                      && c.kind == CXCursor_CXXStaticCastExpr)
+                  || (searcher::m_search_for_dynamic_cast
+                      && c.kind == CXCursor_CXXDynamicCastExpr)
+                  || (searcher::m_search_for_reinterpret_cast
+                      && c.kind == CXCursor_CXXReinterpretCastExpr)
+                  || (searcher::m_search_for_const_cast
+                      && c.kind == CXCursor_CXXConstCastExpr))
               {
                 // fmt::print("Found something in {}\n", filename);
 

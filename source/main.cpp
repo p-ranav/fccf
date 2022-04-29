@@ -141,6 +141,33 @@ int main(int argc, char* argv[])
       .default_value(false)
       .implicit_value(true);
 
+  program.add_argument("--static-cast")
+      .help("Search for static_cast")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--dynamic-cast")
+      .help("Search for dynamic_cast")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--reinterpret-cast")
+      .help("Search for reinterpret_cast")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--const-cast")
+      .help("Search for const_cast")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("-c")
+      .help(
+          "Search for any static_cast, dynamic_cast, reinterpret_cast, or"
+          "const_cast expression")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("--isl", "--ignore-single-line-results")
       .help("Ignore forward declarations, member function declarations, etc.")
       .default_value(false)
@@ -162,9 +189,14 @@ int main(int argc, char* argv[])
   try {
     program.parse_args(argc, argv);
   } catch (const std::runtime_error& err) {
-    std::cerr << err.what() << std::endl;
-    std::cerr << program;
-    std::exit(1);
+    if (program.get<bool>("--help")) {
+      std::cout << program << std::endl;
+      return 0;
+    } else {
+      std::cerr << err.what() << std::endl;
+      std::cerr << program;
+      std::exit(1);
+    }
   }
 
   auto query = program.get<std::string>("query");
@@ -190,8 +222,15 @@ int main(int argc, char* argv[])
   auto search_expressions = program.get<bool>("--include-expressions");
   auto search_for_variable_declaration =
       program.get<bool>("--variable-declaration");
-  auto m_search_for_parameter_declaration =
+  auto search_for_parameter_declaration =
       program.get<bool>("--parameter-declaration");
+
+  auto search_for_static_cast = program.get<bool>("--static-cast");
+  auto search_for_dynamic_cast = program.get<bool>("--dynamic-cast");
+  auto search_for_reinterpret_cast = program.get<bool>("--reinterpret-cast");
+  auto search_for_const_cast = program.get<bool>("--const-cast");
+  auto search_for_any_cast = program.get<bool>("-c");
+
   auto verbose = program.get<bool>("--verbose");
   auto include_dirs = program.get<std::vector<std::string>>("--include-dir");
   auto language_option = program.get<std::string>("--language");
@@ -205,9 +244,12 @@ int main(int argc, char* argv[])
         || search_for_function_template || search_for_any_function
         || search_for_class || search_for_class_template
         || search_for_class_constructor || search_for_class_destructor
-        || search_for_typedef || search_for_using_declaration
-        || search_for_namespace_alias || search_for_variable_declaration
-        || m_search_for_parameter_declaration);
+        || search_for_any_class_or_struct || search_for_typedef
+        || search_for_using_declaration || search_for_namespace_alias
+        || search_for_variable_declaration || search_for_parameter_declaration
+        || search_for_static_cast || search_for_dynamic_cast
+        || search_for_reinterpret_cast || search_for_const_cast
+        || search_for_any_cast);
 
   auto ends_with = [](std::string_view str, std::string_view suffix) -> bool
   {
@@ -280,8 +322,16 @@ int main(int argc, char* argv[])
   searcher.m_search_for_variable_declaration =
       no_filter || search_for_variable_declaration;
   searcher.m_search_for_parameter_declaration =
-      no_filter || m_search_for_parameter_declaration;
+      no_filter || search_for_parameter_declaration;
   searcher.m_search_expressions = search_expressions;
+  searcher.m_search_for_static_cast =
+      no_filter || search_for_any_cast || search_for_static_cast;
+  searcher.m_search_for_dynamic_cast =
+      no_filter || search_for_any_cast || search_for_dynamic_cast;
+  searcher.m_search_for_reinterpret_cast =
+      no_filter || search_for_any_cast || search_for_reinterpret_cast;
+  searcher.m_search_for_const_cast =
+      no_filter || search_for_any_cast || search_for_const_cast;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 

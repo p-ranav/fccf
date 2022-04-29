@@ -50,6 +50,10 @@ struct searcher
   static inline bool m_search_expressions;
   static inline bool m_search_for_variable_declaration;
   static inline bool m_search_for_parameter_declaration;
+  static inline bool m_search_for_static_cast;
+  static inline bool m_search_for_dynamic_cast;
+  static inline bool m_search_for_reinterpret_cast;
+  static inline bool m_search_for_const_cast;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char* path);
