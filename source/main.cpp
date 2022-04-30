@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 int main(int argc, char* argv[])
 {
-  const auto is_stdout = isatty(STDOUT_FILENO) == 1;
+  auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
   argparse::ArgumentParser program("fccf", "0.5.0");
@@ -196,6 +196,11 @@ int main(int argc, char* argv[])
       .default_value<std::string>(std::string {"c++17"})
       .help("C++ standard to be used by clang");
 
+  program.add_argument("--nc", "--no-color")
+      .help("Stops fccf from coloring the output")
+      .default_value(false)
+      .implicit_value(true);
+
   try {
     program.parse_args(argc, argv);
   } catch (const std::runtime_error& err) {
@@ -251,6 +256,12 @@ int main(int argc, char* argv[])
   auto cpp_std = program.get<std::string>("--std");
   auto ignore_single_line_results =
       program.get<bool>("--ignore-single-line-results");
+
+  auto no_color = program.get<bool>("--no-color");
+
+  if (no_color) {
+    is_stdout = false;
+  }
 
   auto no_filter =
       !(search_for_enum || search_for_struct || search_for_union
