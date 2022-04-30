@@ -145,6 +145,7 @@ Optional arguments:
 -I --include-dir                        Additional include directories [default: {}]
 -l --language                           Language option used by clang [default: "c++"]
 --std                                   C++ standard to be used by clang [default: "c++17"]
+--nc --no-color                         Stops fccf from coloring the output [default: false]
 ```
 
 ## How it works
