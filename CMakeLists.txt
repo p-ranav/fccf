@@ -132,23 +132,6 @@ target_link_libraries(fccf_exe PRIVATE fccf_lib
   fmt::fmt
   ${LLVM_LIBRARIES}
   clang
-  clangTooling
-  clangFrontendTool
-  clangFrontend
-  clangDriver
-  clangSerialization
-  clangCodeGen
-  clangParse
-  clangSema
-  clangStaticAnalyzerFrontend
-  clangStaticAnalyzerCheckers
-  clangStaticAnalyzerCore
-  clangAnalysis
-  clangARCMigrate
-  clangEdit
-  clangAST
-  clangLex
-  clangBasic
   )
 
 # ---- Install rules ----
