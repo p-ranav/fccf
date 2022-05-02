@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   auto is_stdout = isatty(STDOUT_FILENO) == 1;
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
-  argparse::ArgumentParser program("fccf", "0.5.0");
+  argparse::ArgumentParser program("fccf", "0.6.0");
   program.add_argument("query");
   program.add_argument("path");
 
