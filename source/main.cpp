@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
   std::cin.tie(NULL);
   argparse::ArgumentParser program("fccf", "0.6.0");
   program.add_argument("query");
-  program.add_argument("path");
+  program.add_argument("path").remaining();
 
   // Generic Program Information
   program.add_argument("-h", "--help")
@@ -214,8 +214,14 @@ int main(int argc, char* argv[])
     }
   }
 
+  std::vector<std::string> paths;
+  try {
+    paths = program.get<std::vector<std::string>>("path");
+  } catch (const std::logic_error& e) {
+    // No path provided
+    paths = {"."};
+  }
   auto query = program.get<std::string>("query");
-  auto path = program.get<std::string>("path");
   auto exact_match = program.get<bool>("--exact-match");
   auto filter = program.get<std::string>("-f");
   auto num_threads = program.get<int>("-j");
@@ -289,38 +295,12 @@ int main(int argc, char* argv[])
     include_directory_list.push_back("-I" + id);
   }
 
-  // Iterate over the `std::filesystem::directory_entry` elements using `auto`
-  for (auto const& dir_entry : fs::recursive_directory_iterator(path)) {
-    auto& path = dir_entry.path();
-    if (fs::is_directory(path)) {
-      // If directory name is include
-      std::string_view directory_name = path.filename().c_str();
-      if (ends_with(directory_name, "include")) {
-        include_directory_list.push_back("-I" + std::string {path});
-      }
-    }
-  }
-
-  std::vector<const char*> clang_options;
-  clang_options.push_back("-x");
-  clang_options.push_back(language_option.c_str());
-
-  auto language_standard = "-std=" + cpp_std;
-  if (language_option == "c++") {
-    clang_options.push_back(language_standard.c_str());
-  }
-
-  for (auto& include_directory : include_directory_list) {
-    clang_options.push_back(include_directory.c_str());
-  }
-
   // Configure a searcher
   search::searcher searcher;
   searcher.m_query = query;
   searcher.m_filter = filter;
   searcher.m_is_stdout = is_stdout;
   searcher.m_verbose = verbose;
-  searcher.m_clang_options = clang_options;
   searcher.m_exact_match = exact_match;
   searcher.m_search_for_enum = no_filter || search_for_enum;
   searcher.m_search_for_struct =
@@ -366,7 +346,53 @@ int main(int argc, char* argv[])
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
 
-  searcher.directory_search(path.c_str());
+  for (const auto& path : paths) {
+    // Update clang options
+    auto parent_path = path == "." ? "." : fs::path(path).parent_path();
+    auto parent_path_string = parent_path.c_str();
+
+    // Iterate over the `std::filesystem::directory_entry` elements using `auto`
+    for (auto const& dir_entry : fs::recursive_directory_iterator(parent_path))
+    {
+      auto& path = dir_entry.path();
+      if (fs::is_directory(path)) {
+        // If directory name is include
+        std::string_view directory_name = path.filename().c_str();
+        if (ends_with(directory_name, "include")) {
+          include_directory_list.push_back("-I" + std::string {path});
+        }
+      }
+    }
+
+    std::vector<const char*> clang_options;
+    clang_options.push_back("-x");
+    clang_options.push_back(language_option.c_str());
+
+    auto language_standard = "-std=" + cpp_std;
+    if (language_option == "c++") {
+      clang_options.push_back(language_standard.c_str());
+    }
+
+    for (auto& include_directory : include_directory_list) {
+      clang_options.push_back(include_directory.c_str());
+    }
+
+    searcher.m_clang_options = clang_options;
+
+    // Run the search
+
+    if (fs::is_regular_file(fs::path(path))) {
+      searcher.read_file_and_search((const char*)path.c_str());
+    } else if (fs::is_directory(fs::path(path))) {
+      searcher.directory_search((const char*)path.c_str());
+    } else {
+      fmt::print(fmt::fg(fmt::color::red) | fmt::emphasis::bold,
+                 "\nError: '{}' is not a valid file or directory\n",
+                 path);
+      std::exit(1);
+    }
+  }
+
   fmt::print("\n");
   return 0;
 }

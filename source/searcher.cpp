@@ -70,6 +70,14 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     clang_options.push_back("-I/usr/include");
     clang_options.push_back("-I/usr/local/include");
 
+    if (m_verbose) {
+      fmt::print("Clang options:\n");
+      for (auto& option : clang_options) {
+        fmt::print("{} ", option);
+      }
+      fmt::print("\n");
+    }
+
     CXIndex index;
 
     if (searcher::m_verbose) {
