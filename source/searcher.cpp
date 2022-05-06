@@ -7,12 +7,43 @@ namespace fs = std::filesystem;
 
 #include <clang-c/Index.h>  // This is libclang.
 
+namespace
+{
+void printPlainText(std::string_view filename,
+                    bool is_stdout,
+                    unsigned start_line,
+                    unsigned end_line,
+                    std::string_view code_snippet)
+{
+  auto out = fmt::memory_buffer();
+  if (is_stdout) {
+    fmt::format_to(
+        std::back_inserter(out), "\n\033[1;90m// {}\033[0m ", filename);
+  } else {
+    fmt::format_to(std::back_inserter(out), "\n// {} ", filename);
+  }
+
+  if (is_stdout) {
+    fmt::format_to(std::back_inserter(out),
+                   "\033[1;90m(Line: {} to {})\033[0m\n",
+                   start_line,
+                   end_line);
+  } else {
+    fmt::format_to(
+        std::back_inserter(out), "(Line: {} to {})\n", start_line, end_line);
+  }
+  lexer lex;
+  lex.tokenize_and_pretty_print(code_snippet, &out, is_stdout);
+  fmt::format_to(std::back_inserter(out), "\n");
+  fmt::print("{}", fmt::to_string(out));
+}
+}  // namespace
 namespace search
 {
-std::string_view::const_iterator needle_search(
-    std::string_view needle,
-    std::string_view::const_iterator haystack_begin,
-    std::string_view::const_iterator haystack_end)
+auto needle_search(std::string_view needle,
+                   std::string_view::const_iterator haystack_begin,
+                   std::string_view::const_iterator haystack_end)
+    -> std::string_view::const_iterator
 {
   if (haystack_begin != haystack_end) {
     return std::search(
@@ -107,8 +138,9 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
     {
       std::string_view filename;
       std::string_view haystack;
+      custom_printer_callback printer;
     };
-    client_args args = {filename, haystack};
+    client_args args = {filename, haystack, m_custom_printer};
 
     if (clang_visitChildren(
             cursor,
@@ -117,6 +149,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
               client_args* args = (client_args*)client_data;
               auto filename = args->filename;
               auto haystack = args->haystack;
+              auto printer = args->printer;
 
               /*
                 CXCursor_CXXStaticCastExpr
@@ -281,37 +314,21 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                           return CXChildVisit_Continue;
                         }
                       }
-
-                      auto out = fmt::memory_buffer();
-
-                      // Filename
-                      if (m_is_stdout) {
-                        fmt::format_to(std::back_inserter(out),
-                                       "\n\033[1;90m// {}\033[0m ",
-                                       filename);
+                      if (printer) {
+                        printer(filename,
+                                m_is_stdout,
+                                start_line,
+                                end_line,
+                                code_snippet);
                       } else {
-                        fmt::format_to(
-                            std::back_inserter(out), "\n// {} ", filename);
+                        printPlainText(filename,
+                                       m_is_stdout,
+                                       start_line,
+                                       end_line,
+                                       code_snippet);
                       }
 
                       // Line number (start, end)
-                      if (m_is_stdout) {
-                        fmt::format_to(std::back_inserter(out),
-                                       "\033[1;90m(Line: {} to {})\033[0m\n",
-                                       start_line,
-                                       end_line);
-                      } else {
-                        fmt::format_to(std::back_inserter(out),
-                                       "(Line: {} to {})\n",
-                                       start_line,
-                                       end_line);
-                      }
-
-                      lexer lex;
-                      lex.tokenize_and_pretty_print(
-                          code_snippet, &out, m_is_stdout);
-                      fmt::format_to(std::back_inserter(out), "\n");
-                      fmt::print("{}", fmt::to_string(out));
                     }
                   }
                 }

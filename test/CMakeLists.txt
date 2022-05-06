@@ -4,10 +4,12 @@
 
 project(fccfTests LANGUAGES CXX)
 
+find_package(Clang REQUIRED CONFIG)
+
 # ---- Tests ----
 
 add_executable(fccf_test source/fccf_test.cpp)
-target_link_libraries(fccf_test PRIVATE fccf_lib)
+target_link_libraries(fccf_test PRIVATE fccf_lib libclang)
 target_compile_features(fccf_test PRIVATE cxx_std_17)
 
 add_test(NAME fccf_test COMMAND fccf_test)

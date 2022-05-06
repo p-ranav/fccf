@@ -24,6 +24,12 @@
 
 namespace search
 {
+using custom_printer_callback =
+    std::function<void(std::string_view filename,
+                       bool is_stdout,
+                       unsigned start_line,
+                       unsigned end_line,
+                       std::string_view code_snippet)>;
 struct searcher
 {
   static inline std::unique_ptr<thread_pool> m_ts;
@@ -56,6 +62,7 @@ struct searcher
   static inline bool m_search_for_const_cast;
   static inline bool m_search_for_throw_expression;
   static inline bool m_search_for_for_statement;
+  static inline custom_printer_callback m_custom_printer;
 
   static void file_search(std::string_view filename, std::string_view haystack);
   static void read_file_and_search(const char* path);

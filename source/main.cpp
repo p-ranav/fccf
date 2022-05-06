@@ -9,6 +9,9 @@
 #include <argparse.hpp>
 #include <searcher.hpp>
 #include <unistd.h>
+
+#include "json.hpp"
+
 namespace fs = std::filesystem;
 
 int main(int argc, char* argv[])
@@ -28,6 +31,11 @@ int main(int argc, char* argv[])
 
   program.add_argument("-E", "--exact-match")
       .help("Only consider exact matches")
+      .default_value(false)
+      .implicit_value(true);
+
+  program.add_argument("--json")
+      .help("Print results in JSON format")
       .default_value(false)
       .implicit_value(true);
 
@@ -264,6 +272,7 @@ int main(int argc, char* argv[])
       program.get<bool>("--ignore-single-line-results");
 
   auto no_color = program.get<bool>("--no-color");
+  auto is_json = program.get<bool>("--json");
 
   if (no_color) {
     is_stdout = false;
@@ -345,6 +354,22 @@ int main(int argc, char* argv[])
   searcher.m_search_for_for_statement = no_filter || search_for_for_statement;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
+  nlohmann::json jsonArray = nlohmann::json::array();
+  if (is_json) {
+    searcher.m_custom_printer = [&jsonArray](std::string_view filename,
+                                             bool is_stdout,
+                                             unsigned start_line,
+                                             unsigned end_line,
+                                             std::string_view code_snippet)
+    {
+      nlohmann::json obj;
+      obj["filename"] = filename;
+      obj["snippet"] = code_snippet;
+      obj["start_line"] = start_line;
+      obj["end_line"] = end_line;
+      jsonArray.push_back(obj);
+    };
+  }
 
   for (const auto& path : paths) {
     // Update clang options
@@ -393,6 +418,9 @@ int main(int argc, char* argv[])
     }
   }
 
+  if (is_json) {
+    fmt::print("{}", jsonArray.dump());
+  }
   fmt::print("\n");
   return 0;
 }
