@@ -10,7 +10,7 @@
 #include <searcher.hpp>
 #include <unistd.h>
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 
