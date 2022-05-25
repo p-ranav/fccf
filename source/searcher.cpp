@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 namespace
 {
-void printPlainText(std::string_view filename,
+void print_code_snippet(std::string_view filename,
                     bool is_stdout,
                     unsigned start_line,
                     unsigned end_line,
@@ -321,7 +321,7 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                                 end_line,
                                 code_snippet);
                       } else {
-                        printPlainText(filename,
+                        print_code_snippet(filename,
                                        m_is_stdout,
                                        start_line,
                                        end_line,

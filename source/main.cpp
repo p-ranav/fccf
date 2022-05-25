@@ -354,9 +354,9 @@ int main(int argc, char* argv[])
   searcher.m_search_for_for_statement = no_filter || search_for_for_statement;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
-  nlohmann::json jsonArray = nlohmann::json::array();
+  nlohmann::json json_array = nlohmann::json::array();
   if (is_json) {
-    searcher.m_custom_printer = [&jsonArray](std::string_view filename,
+    searcher.m_custom_printer = [&json_array](std::string_view filename,
                                              bool is_stdout,
                                              unsigned start_line,
                                              unsigned end_line,
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
       obj["snippet"] = code_snippet;
       obj["start_line"] = start_line;
       obj["end_line"] = end_line;
-      jsonArray.push_back(obj);
+      json_array.push_back(obj);
     };
   }
 
@@ -419,7 +419,7 @@ int main(int argc, char* argv[])
   }
 
   if (is_json) {
-    fmt::print("{}", jsonArray.dump());
+    fmt::print("{}", json_array.dump());
   }
   fmt::print("\n");
   return 0;
