@@ -45,6 +45,13 @@ FetchContent_Declare(fmt
 )
 FetchContent_MakeAvailable(fmt)
 
+# ---- nlohmann json ----------------
+
+FetchContent_Declare(json
+  URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz
+)
+FetchContent_MakeAvailable(json)
+
 # ---- LLVM ---------------
 
 find_package(LLVM REQUIRED CONFIG)
@@ -132,6 +139,7 @@ target_link_libraries(fccf_exe PRIVATE fccf_lib
   fmt::fmt
   ${LLVM_LIBRARIES}
   clang
+  nlohmann_json::nlohmann_json
   )
 
 # ---- Install rules ----
