@@ -2,7 +2,9 @@
 #include <cstring>
 
 #include <ctype.h>
+#if defined(__x86_64__) || defined (__i686__)
 #include <immintrin.h>
+#endif
 #include <sse2_strstr.hpp>
 
 #define FORCE_INLINE inline __attribute__((always_inline))
