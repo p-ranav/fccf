@@ -7,7 +7,7 @@ project(
     VERSION 0.6.0
     DESCRIPTION "fccf recursively searches a directory to find C/C++ source code matching a search string."
     HOMEPAGE_URL "https://github.com/p-ranav/fccf"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 include(cmake/project-is-top-level.cmake)
@@ -20,7 +20,6 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 # ---- Argparse -------------
 
@@ -92,12 +91,14 @@ string(STRIP ${LLVM_CXXFLAGS} LLVM_CXXFLAGS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
 
 # ---- Threads ------------
-find_package(Threads REQUIRED)
+if(NOT ANDROID)
+  find_package(Threads REQUIRED)
+endif()
 
 ## Append flags to enable exceptions and optimization
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -std=c++17 -fexceptions")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fexceptions")
 
 # ---- Declare library ----
 
@@ -120,7 +121,10 @@ target_compile_features(fccf_lib PUBLIC cxx_std_17)
 target_compile_options (fccf_lib PRIVATE -fexceptions)
 separate_arguments(LLVM_LDFLAGS UNIX_COMMAND "${LLVM_LDFLAGS}")
 target_link_options(fccf_lib PRIVATE ${LLVM_LDFLAGS})
-target_link_libraries(fccf_lib PRIVATE fmt::fmt Threads::Threads)
+target_link_libraries(fccf_lib PRIVATE fmt::fmt)
+if(NOT ANDROID)
+  target_link_libraries(fccf_lib Threads::Threads)
+endif()
 
 # ---- Declare executable ----
 
