@@ -102,50 +102,51 @@ sudo cmake --install build
 
 ```console
 foo@bar:~$ fccf --help
-Usage: fccf [options] query path
+Usage: fccf [--help] [--version] [--help] [--exact-match] [--json] [--filter VAR] [-j VAR] [--enum] [--struct] [--union] [--member-function] [--function] [--function-template] [-F] [--class] [--class-template] [--class-constructor] [--class-destructor] [-C] [--for-statement] [--namespace-alias] [--parameter-declaration] [--typedef] [--using-declaration] [--variable-declaration] [--verbose] [--include-expressions] [--static-cast] [--dynamic-cast] [--reinterpret-cast] [--const-cast] [-c] [--throw-expression] [--ignore-single-line-results] [--include-dir VAR]... [--language VAR] [--std VAR] [--no-color] query [path]...
 
 Positional arguments:
-query
-path
+  query                                
+  path                                 [nargs: 0 or more] 
 
 Optional arguments:
--h --help                               shows help message and exits [default: false]
--v --version                            prints version information and exits [default: false]
--h --help                               Shows help message and exits [default: false]
--E --exact-match                        Only consider exact matches [default: false]
--f --filter                             Only evaluate files that match filter pattern [default: "*.*"]
--j                                      Number of threads [default: 5]
---enum                                  Search for enum declaration [default: false]
---struct                                Search for struct declaration [default: false]
---union                                 Search for union declaration [default: false]
---member-function                       Search for class member function declaration [default: false]
---function                              Search for function declaration [default: false]
---function-template                     Search for function template declaration [default: false]
--F                                      Search for any function or function template or class member function [default: false]
---class                                 Search for class declaration [default: false]
---class-template                        Search for class template declaration [default: false]
---class-constructor                     Search for class constructor declaration [default: false]
---class-destructor                      Search for class destructor declaration [default: false]
--C                                      Search for any class or class template or struct [default: false]
---for-statement                         Search for `for` statement [default: false]
---namespace-alias                       Search for namespace alias [default: false]
---parameter-declaration                 Search for function or method parameter [default: false]
---typedef                               Search for typedef declaration [default: false]
---using-declaration                     Search for using declarations, using directives, and type alias declarations [default: false]
---variable-declaration                  Search for variable declaration [default: false]
---verbose                               Request verbose output [default: false]
---ie --include-expressions              Search for expressions that refer to some value or member, e.g., function, variable, or enumerator. [default: false]
---static-cast                           Search for static_cast [default: false]
---dynamic-cast                          Search for dynamic_cast [default: false]
---reinterpret-cast                      Search for reinterpret_cast [default: false]
---const-cast                            Search for const_cast [default: false]
--c                                      Search for any static_cast, dynamic_cast, reinterpret_cast, orconst_cast expression [default: false]
---throw-expression                      Search for throw expression [default: false]
---isl --ignore-single-line-results      Ignore forward declarations, member function declarations, etc. [default: false]
--I --include-dir                        Additional include directories [default: {}]
--l --language                           Language option used by clang [default: "c++"]
---std                                   C++ standard to be used by clang [default: "c++17"]
---nc --no-color                         Stops fccf from coloring the output [default: false]
+  -h, --help                           shows help message and exits 
+  -v, --version                        prints version information and exits 
+  -h, --help                           Shows help message and exits 
+  -E, --exact-match                    Only consider exact matches 
+  --json                               Print results in JSON format 
+  -f, --filter                         Only evaluate files that match filter pattern [nargs=0..1] [default: "*.*"]
+  -j                                   Number of threads [nargs=0..1] [default: 5]
+  --enum                               Search for enum declaration 
+  --struct                             Search for struct declaration 
+  --union                              Search for union declaration 
+  --member-function                    Search for class member function declaration 
+  --function                           Search for function declaration 
+  --function-template                  Search for function template declaration 
+  -F                                   Search for any function or function template or class member function 
+  --class                              Search for class declaration 
+  --class-template                     Search for class template declaration 
+  --class-constructor                  Search for class constructor declaration 
+  --class-destructor                   Search for class destructor declaration 
+  -C                                   Search for any class or class template or struct 
+  --for-statement                      Search for `for` statement 
+  --namespace-alias                    Search for namespace alias 
+  --parameter-declaration              Search for function or method parameter 
+  --typedef                            Search for typedef declaration 
+  --using-declaration                  Search for using declarations, using directives, and type alias declarations 
+  --variable-declaration               Search for variable declaration 
+  --verbose                            Request verbose output 
+  --ie, --include-expressions          Search for expressions that refer to some value or member, e.g., function, variable, or enumerator. 
+  --static-cast                        Search for static_cast 
+  --dynamic-cast                       Search for dynamic_cast 
+  --reinterpret-cast                   Search for reinterpret_cast 
+  --const-cast                         Search for const_cast 
+  -c                                   Search for any static_cast, dynamic_cast, reinterpret_cast, orconst_cast expression 
+  --throw-expression                   Search for throw expression 
+  --isl, --ignore-single-line-results  Ignore forward declarations, member function declarations, etc. 
+  -I, --include-dir                    Additional include directories [nargs=0..1] [default: {}] [may be repeated]
+  -l, --language                       Language option used by clang [nargs=0..1] [default: "c++"]
+  --std                                C++ standard to be used by clang [nargs=0..1] [default: "c++17"]
+  --nc, --no-color                     Stops fccf from coloring the output 
 ```
 
 ## How it works
