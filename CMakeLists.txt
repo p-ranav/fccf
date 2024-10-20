@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.14)
 include(cmake/prelude.cmake)
 
 project(
-    fccf
-    VERSION 0.6.0
-    DESCRIPTION "fccf recursively searches a directory to find C/C++ source code matching a search string."
-    HOMEPAGE_URL "https://github.com/p-ranav/fccf"
-    LANGUAGES C CXX
+  fccf
+  VERSION 0.6.0
+  DESCRIPTION "fccf recursively searches a directory to find C/C++ source code matching a search string."
+  HOMEPAGE_URL "https://github.com/p-ranav/fccf"
+  LANGUAGES C CXX
 )
 
 include(cmake/project-is-top-level.cmake)
@@ -51,44 +51,32 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-# ---- LLVM ---------------
+# ---- LLVM and clang ---------------
 
 find_package(LLVM REQUIRED CONFIG)
+find_package(clang REQUIRED CONFIG)
 
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Found LLVM: ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+message(STATUS "Found clang: ${CLANG_PACKAGE_VERSION}")
+message(STATUS "Using ClangConfig.cmake in: ${CLANG_DIR}")
 
 # Add path to LLVM modules
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   "${LLVM_CMAKE_DIR}"
-  )
+  "${CLANG_CMAKE_DIR}"
+)
 
-# import LLVM CMake functions
+# import LLVM and clang CMake functions
 include(AddLLVM)
+include(AddClang)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(${CLANG_INCLUDE_DIRS})
 
 add_definitions(${LLVM_DEFINITIONS})
 add_definitions(${CLANG_DEFINITIONS})
-
-# LLVM link libraries
-execute_process(COMMAND llvm-config --libs all
-  OUTPUT_VARIABLE LLVM_LIBRARIES)
-string(STRIP ${LLVM_LIBRARIES} LLVM_LIBRARIES)
-
-# LLVM LD flags
-execute_process(COMMAND llvm-config --ldflags
-  OUTPUT_VARIABLE LLVM_LDFLAGS)
-string(STRIP ${LLVM_LDFLAGS} LLVM_LDFLAGS)
-
-# LLVM CXX FLAGS
-execute_process(COMMAND llvm-config --cxxflags
-  OUTPUT_VARIABLE LLVM_CXXFLAGS)
-string(STRIP ${LLVM_CXXFLAGS} LLVM_CXXFLAGS)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS}")
 
 # ---- Threads ------------
 if(NOT ANDROID)
@@ -103,25 +91,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fexceptions")
 # ---- Declare library ----
 
 add_library(
-    fccf_lib OBJECT
-    source/searcher.cpp
-    source/sse2_strstr.cpp
-    source/lexer.cpp
-    source/utf8.cpp
+  fccf_lib OBJECT
+  source/searcher.cpp
+  source/sse2_strstr.cpp
+  source/lexer.cpp
+  source/utf8.cpp
 )
 
 target_include_directories(
-    fccf_lib ${warning_guard}
-    PUBLIC
-    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
-    ${argparse_SOURCE_DIR}/include/argparse
+  fccf_lib ${warning_guard}
+  PUBLIC
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/source>"
+  ${argparse_SOURCE_DIR}/include/argparse
 )
 
 target_compile_features(fccf_lib PUBLIC cxx_std_17)
-target_compile_options (fccf_lib PRIVATE -fexceptions)
-separate_arguments(LLVM_LDFLAGS UNIX_COMMAND "${LLVM_LDFLAGS}")
-target_link_options(fccf_lib PRIVATE ${LLVM_LDFLAGS})
-set (LIBS fmt::fmt)
+target_compile_options(fccf_lib PRIVATE -fexceptions)
+set(LIBS fmt::fmt)
 if(NOT ANDROID)
   list(APPEND LIBS Threads::Threads)
 endif()
@@ -129,12 +115,12 @@ target_link_libraries(fccf_lib PRIVATE ${LIBS})
 
 # ---- Declare executable ----
 
-add_llvm_executable(fccf_exe source/main.cpp)
+add_clang_executable(fccf_exe source/main.cpp)
 
 set_target_properties(
-    fccf_exe PROPERTIES
-    OUTPUT_NAME fccf
-    EXPORT_NAME exe
+  fccf_exe PROPERTIES
+  OUTPUT_NAME fccf
+  EXPORT_NAME exe
 )
 
 target_compile_features(fccf_exe PRIVATE cxx_std_17)
@@ -142,10 +128,9 @@ target_compile_options(fccf_exe PRIVATE -fexceptions)
 target_link_options(fccf_exe PRIVATE ${LLVM_LDFLAGS})
 target_link_libraries(fccf_exe PRIVATE fccf_lib
   fmt::fmt
-  ${LLVM_LIBRARIES}
-  clang
+  libclang
   nlohmann_json::nlohmann_json
-  )
+)
 
 # ---- Install rules ----
 
@@ -159,8 +144,8 @@ if(NOT fccf_DEVELOPER_MODE)
   return()
 elseif(NOT PROJECT_IS_TOP_LEVEL)
   message(
-      AUTHOR_WARNING
-      "Developer mode is intended for developers of fccf"
+    AUTHOR_WARNING
+    "Developer mode is intended for developers of fccf"
   )
 endif()
 
