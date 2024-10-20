@@ -1,9 +1,9 @@
+#include <algorithm>
+#include <array>
 #include <fnmatch.h>
 #include <lexer.hpp>
 #include <searcher.hpp>
 namespace fs = std::filesystem;
-
-#include <utility>
 
 #include <clang-c/Index.h>  // This is libclang.
 
@@ -37,7 +37,31 @@ void print_code_snippet(std::string_view filename,
   fmt::format_to(std::back_inserter(out), "\n");
   fmt::print("{}", fmt::to_string(out));
 }
+
+bool exclude_directory(const char* path)
+{
+  static const std::array<const char*, 35> ignored_dirs = {
+      ".git/",         ".github/",       "build/",
+      "node_modules/", ".vscode/",       ".DS_Store/",
+      "debugPublic/",  "DebugPublic/",   "debug/",
+      "Debug/",        "Release/",       "release/",
+      "Releases/",     "releases/",      "cmake-build-debug/",
+      "__pycache__/",  "Binaries/",      "Doc/",
+      "doc/",          "Documentation/", "docs/",
+      "Docs/",         "bin/",           "Bin/",
+      "patches/",      "tar-install/",   "CMakeFiles/",
+      "install/",      "snap/",          "LICENSES/",
+      "img/",          "images/",        "imgs/",
+      ".cache/",       ".github/"};
+
+  return std::any_of(ignored_dirs.cbegin(),
+                     ignored_dirs.cend(),
+                     [path](const char* ignored_dir) -> bool
+                     { return strstr(path, ignored_dir) != nullptr; });
+}
+
 }  // namespace
+
 namespace search
 {
 auto needle_search(std::string_view needle,
@@ -392,45 +416,19 @@ bool is_whitelisted(const std::string_view& str)
   return result;
 }
 
-bool exclude_directory(const char* path)
-{
-  static const std::unordered_set<const char*> ignored_dirs = {
-      ".git/",         ".github/",       "build/",
-      "node_modules/", ".vscode/",       ".DS_Store/",
-      "debugPublic/",  "DebugPublic/",   "debug/",
-      "Debug/",        "Release/",       "release/",
-      "Releases/",     "releases/",      "cmake-build-debug/",
-      "__pycache__/",  "Binaries/",      "Doc/",
-      "doc/",          "Documentation/", "docs/",
-      "Docs/",         "bin/",           "Bin/",
-      "patches/",      "tar-install/",   "CMakeFiles/",
-      "install/",      "snap/",          "LICENSES/",
-      "img/",          "images/",        "imgs/"};
-
-  for (const auto& ignored_dir : ignored_dirs) {
-    // if path contains ignored dir, ignore it
-    if (strstr(path, ignored_dir) != nullptr) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 void searcher::directory_search(const char* search_path)
 {
   static const bool skip_fnmatch =
       searcher::m_filter == std::string_view {"*.*"};
 
   for (auto const& dir_entry : fs::recursive_directory_iterator(search_path)) {
-    auto& path = dir_entry.path();
-    const char* path_string = (const char*)path.c_str();
-    if (fs::is_regular_file(path)) {
+    const auto& path = dir_entry.path();
+    const char* path_string = path.c_str();
+    if ((searcher::m_no_ignore_dirs || !exclude_directory(path_string)) && fs::is_regular_file(path)) {
       bool consider_file = false;
-      if (skip_fnmatch && is_whitelisted(path_string)) {
-        consider_file = true;
-      } else if (!skip_fnmatch
-                 && fnmatch(searcher::m_filter.data(), path_string, 0) == 0)
+      if ((skip_fnmatch && is_whitelisted(path_string))
+          || (!skip_fnmatch
+              && fnmatch(searcher::m_filter.data(), path_string, 0) == 0))
       {
         consider_file = true;
       }
