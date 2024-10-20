@@ -51,15 +51,12 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-# ---- LLVM and clang ---------------
+# ---- clang ---------------
 
-find_package(LLVM REQUIRED CONFIG)
-find_package(clang REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG)
 
-message(STATUS "Found LLVM: ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Found LLVM with clang: ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-message(STATUS "Found clang: ${CLANG_PACKAGE_VERSION}")
-message(STATUS "Using ClangConfig.cmake in: ${CLANG_DIR}")
 
 # Add path to LLVM modules
 set(CMAKE_MODULE_PATH
