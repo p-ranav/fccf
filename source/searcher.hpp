@@ -7,7 +7,6 @@
 #define FMT_HEADER_ONLY 1
 #include <fmt/color.h>
 #include <fmt/core.h>
-#include <sse2_strstr.hpp>
 #include <thread_pool.hpp>
 
 namespace search

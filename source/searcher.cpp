@@ -6,6 +6,7 @@
 
 #include <clang-c/Index.h>  // This is libclang.
 #include <fnmatch.h>
+#include <sse2_strstr.hpp>
 
 #include "lexer.hpp"
 
