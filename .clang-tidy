@@ -1,15 +1,16 @@
 ---
-# Enable ALL the things! Except not really
 # misc-non-private-member-variables-in-classes: the options don't do anything
-Checks: "*,\
-  -google-readability-todo,\
-  -altera-*,\
-  -fuchsia-*,\
+Checks: "\
+  bugprone-*,\
+  cppcoreguidelines-*,\
+  misc-*,\
+  modernize-*,\
+  performance-*,\
+  portability-*,\
+  readability-*,\
   fuchsia-multiple-inheritance,\
-  -llvm-header-guard,\
-  -llvm-include-order,\
-  -llvmlibc-*,\
-  -misc-non-private-member-variables-in-classes"
+  -misc-non-private-member-variables-in-classes,\
+  -modernize-use-trailing-return-type"
 WarningsAsErrors: ''
 CheckOptions:
   - key: 'bugprone-argument-comment.StrictMode'
