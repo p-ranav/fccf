@@ -323,9 +323,9 @@ int main(int argc, char* argv[])
 
   // Configure a searcher
   search::searcher searcher;
-  searcher.m_query = query;
-  searcher.m_filters = filters;
-  searcher.m_excludes = excludes;
+  searcher.m_query = std::move(query);
+  searcher.m_filters = std::move(filters);
+  searcher.m_excludes = std::move(excludes);
   searcher.m_no_ignore_dirs = no_ignore_dirs;
   searcher.m_is_stdout = is_stdout;
   searcher.m_verbose = verbose;
