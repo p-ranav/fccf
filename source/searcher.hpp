@@ -37,6 +37,7 @@ struct searcher
   static inline std::unique_ptr<thread_pool> m_ts;
   static inline std::string_view m_query;
   static inline std::string_view m_filter;
+  static inline bool m_no_ignore_dirs;
   static inline bool m_verbose;
   static inline bool m_is_stdout;
   static inline std::vector<const char*> m_clang_options;

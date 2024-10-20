@@ -43,6 +43,13 @@ int main(int argc, char* argv[])
       .help("Only evaluate files that match filter pattern")
       .default_value(std::string {"*.*"});
 
+  program.add_argument("--no-ignore-dirs")
+      .help(
+          "Do not ignore files under an integrated list of blocklisted "
+          "directories (VCS, IDE, common build directories, etc.)")
+      .default_value(false)
+      .implicit_value(true);
+
   program.add_argument("-j")
       .help("Number of threads")
       .scan<'d', int>()
@@ -231,8 +238,12 @@ int main(int argc, char* argv[])
   }
   auto query = program.get<std::string>("query");
   auto exact_match = program.get<bool>("--exact-match");
+
   auto filter = program.get<std::string>("-f");
+  auto no_ignore_dirs = program.get<bool>("--no-ignore-dirs");
+
   auto num_threads = program.get<int>("-j");
+
   auto search_for_enum = program.get<bool>("--enum");
   auto search_for_struct = program.get<bool>("--struct");
   auto search_for_union = program.get<bool>("--union");
@@ -308,6 +319,7 @@ int main(int argc, char* argv[])
   search::searcher searcher;
   searcher.m_query = query;
   searcher.m_filter = filter;
+  searcher.m_no_ignore_dirs = no_ignore_dirs;
   searcher.m_is_stdout = is_stdout;
   searcher.m_verbose = verbose;
   searcher.m_exact_match = exact_match;
@@ -354,6 +366,7 @@ int main(int argc, char* argv[])
   searcher.m_search_for_for_statement = no_filter || search_for_for_statement;
   searcher.m_ignore_single_line_results = ignore_single_line_results;
   searcher.m_ts = std::make_unique<thread_pool>(num_threads);
+
   nlohmann::json json_array = nlohmann::json::array();
   if (is_json) {
     searcher.m_custom_printer = [&json_array](std::string_view filename,
