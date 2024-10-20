@@ -1,19 +1,25 @@
 #include <algorithm>
 #include <array>
-#include <fnmatch.h>
-#include <lexer.hpp>
-#include <searcher.hpp>
-namespace fs = std::filesystem;
+#include <filesystem>
+
+#include "searcher.hpp"
 
 #include <clang-c/Index.h>  // This is libclang.
+#include <fnmatch.h>
+#include <sse2_strstr.hpp>
+
+#include "lexer.hpp"
+
+namespace fs = std::filesystem;
+using namespace std::string_view_literals;
 
 namespace
 {
 void print_code_snippet(std::string_view filename,
-                    bool is_stdout,
-                    unsigned start_line,
-                    unsigned end_line,
-                    std::string_view code_snippet)
+                        bool is_stdout,
+                        unsigned start_line,
+                        unsigned end_line,
+                        std::string_view code_snippet)
 {
   auto out = fmt::memory_buffer();
   if (is_stdout) {
@@ -346,10 +352,10 @@ void searcher::file_search(std::string_view filename, std::string_view haystack)
                                 code_snippet);
                       } else {
                         print_code_snippet(filename,
-                                       m_is_stdout,
-                                       start_line,
-                                       end_line,
-                                       code_snippet);
+                                           m_is_stdout,
+                                           start_line,
+                                           end_line,
+                                           code_snippet);
                       }
 
                       // Line number (start, end)
@@ -419,19 +425,27 @@ bool is_whitelisted(const std::string_view& str)
 void searcher::directory_search(const char* search_path)
 {
   static const bool skip_fnmatch =
-      searcher::m_filter == std::string_view {"*.*"};
+      searcher::m_filters.size() == 1 && searcher::m_filters[0] == "*.*"sv;
 
   for (auto const& dir_entry : fs::recursive_directory_iterator(search_path)) {
     const auto& path = dir_entry.path();
     const char* path_string = path.c_str();
-    if ((searcher::m_no_ignore_dirs || !exclude_directory(path_string)) && fs::is_regular_file(path)) {
-      bool consider_file = false;
-      if ((skip_fnmatch && is_whitelisted(path_string))
+    if ((searcher::m_no_ignore_dirs || !exclude_directory(path_string))
+        && fs::is_regular_file(path))
+    {
+      const auto glob_match = [path_string](const auto glob) -> bool
+      { return fnmatch(glob.data(), path_string, 0) == 0; };
+
+      const bool consider_file = (skip_fnmatch && is_whitelisted(path_string))
           || (!skip_fnmatch
-              && fnmatch(searcher::m_filter.data(), path_string, 0) == 0))
-      {
-        consider_file = true;
-      }
+              && std::any_of(searcher::m_filters.cbegin(),
+                             searcher::m_filters.cend(),
+                             glob_match)
+              && (searcher::m_excludes.empty()
+                  || std::none_of(searcher::m_excludes.cbegin(),
+                                  searcher::m_excludes.cend(),
+                                  glob_match)));
+
       if (consider_file) {
         searcher::m_ts->push_task(
             [pathstring = std::string {path_string}]()

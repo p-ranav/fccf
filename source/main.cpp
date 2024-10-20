@@ -7,10 +7,9 @@
 #include <vector>
 
 #include <argparse.hpp>
-#include <searcher.hpp>
-#include <unistd.h>
-
 #include <nlohmann/json.hpp>
+#include "searcher.hpp"
+#include <unistd.h>
 
 namespace fs = std::filesystem;
 
@@ -40,8 +39,14 @@ int main(int argc, char* argv[])
       .implicit_value(true);
 
   program.add_argument("-f", "--filter")
-      .help("Only evaluate files that match filter pattern")
-      .default_value(std::string {"*.*"});
+      .help("Only evaluate files that match any of these glob patterns")
+      .default_value<std::vector<std::string>>({"*.*"})
+      .append();
+
+  program.add_argument("-e", "--exclude")
+      .help("Only evaluate files that DO NOT match any of these glob patterns")
+      .default_value<std::vector<std::string>>({})
+      .append();
 
   program.add_argument("--no-ignore-dirs")
       .help(
@@ -239,7 +244,8 @@ int main(int argc, char* argv[])
   auto query = program.get<std::string>("query");
   auto exact_match = program.get<bool>("--exact-match");
 
-  auto filter = program.get<std::string>("-f");
+  auto filters = program.get<std::vector<std::string>>("-f");
+  auto excludes = program.get<std::vector<std::string>>("-e");
   auto no_ignore_dirs = program.get<bool>("--no-ignore-dirs");
 
   auto num_threads = program.get<int>("-j");
@@ -317,8 +323,9 @@ int main(int argc, char* argv[])
 
   // Configure a searcher
   search::searcher searcher;
-  searcher.m_query = query;
-  searcher.m_filter = filter;
+  searcher.m_query = std::move(query);
+  searcher.m_filters = std::move(filters);
+  searcher.m_excludes = std::move(excludes);
   searcher.m_no_ignore_dirs = no_ignore_dirs;
   searcher.m_is_stdout = is_stdout;
   searcher.m_verbose = verbose;
@@ -370,10 +377,10 @@ int main(int argc, char* argv[])
   nlohmann::json json_array = nlohmann::json::array();
   if (is_json) {
     searcher.m_custom_printer = [&json_array](std::string_view filename,
-                                             bool is_stdout,
-                                             unsigned start_line,
-                                             unsigned end_line,
-                                             std::string_view code_snippet)
+                                              bool is_stdout,
+                                              unsigned start_line,
+                                              unsigned end_line,
+                                              std::string_view code_snippet)
     {
       nlohmann::json obj;
       obj["filename"] = filename;
